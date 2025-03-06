@@ -11,7 +11,8 @@
 void SvgIcon::addSvgPixmapsToIcon(QIcon &icon, QString fn) {
 	QSvgRenderer svg(fn);
 
-	QList< QSize > commonSizes;
+    QList<QSize> commonSizes;
+
 	commonSizes << QSize(8, 8);
 	commonSizes << QSize(16, 16);
 	commonSizes << QSize(22, 22); // Plasma notification area size
@@ -24,7 +25,8 @@ void SvgIcon::addSvgPixmapsToIcon(QIcon &icon, QString fn) {
 	commonSizes << QSize(128, 128);
 	commonSizes << QSize(256, 256);
 
-	foreach (QSize size, commonSizes) {
+    for (const QSize& size : commonSizes)
+    {
 		QPixmap pm(size);
 		pm.fill(Qt::transparent);
 

@@ -10,25 +10,32 @@
 #include <QXmlStreamWriter>
 
 void XMLTools::recurseParse(QXmlStreamReader &reader, QXmlStreamWriter &writer, int &paragraphs,
-							const QMap< QString, QString > &opstyle, const int close, bool ignore) {
-	while (!reader.atEnd()) {
+                            const QMap< QString, QString > &opstyle, const int close, bool ignore)
+{
+    while (!reader.atEnd())
+    {
 		QXmlStreamReader::TokenType tt = reader.readNext();
-
 		QXmlStreamAttributes a = reader.attributes();
 		QMap< QString, QString > style;
 		QMap< QString, QString > pstyle = opstyle;
 
 		const auto styleref = a.value(QLatin1String("style"));
-		if (!styleref.isNull()) {
+
+        if (!styleref.isNull())
+        {
 			QString stylestring = styleref.toString();
 			QStringList styles  = stylestring.split(QLatin1String(";"), Qt::SkipEmptyParts);
-			foreach (QString s, styles) {
-				s                 = s.simplified();
-				const auto idx    = s.indexOf(QLatin1Char(':'));
-				const QString key = (idx > 0) ? s.left(idx).simplified() : s;
-				const QString val = (idx > 0) ? s.mid(idx + 1).simplified() : QString();
 
-				if (!pstyle.contains(key) || (pstyle.value(key) != val)) {
+            for (const QString& s : styles)
+            {
+                QString simplified = s.simplified();
+
+                const auto idx    = simplified.indexOf(QLatin1Char(':'));
+                const QString key = (idx > 0) ? simplified.left(idx).simplified() : simplified;
+                const QString val = (idx > 0) ? simplified.mid(idx + 1).simplified() : QString();
+
+                if (!pstyle.contains(key) || (pstyle.value(key) != val))
+                {
 					style.insert(key, val);
 					pstyle.insert(key, val);
 				}

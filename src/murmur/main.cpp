@@ -117,18 +117,24 @@ static void murmurMessageOutputQString(QtMsgType type, const QString &msg) {
 		fprintf(stderr, "%s\n", qPrintable(m));
 #	endif
 #endif
-	} else {
-		if (!qlErrors.isEmpty()) {
-			foreach (const QString &e, qlErrors) {
+    }
+    else
+    {
+        if (!qlErrors.isEmpty())
+        {
+            for (const QString& e : qlErrors)
+            {
 				qfLog->write(e.toUtf8());
 				qfLog->write("\n");
 			}
+
 			qlErrors.clear();
 		}
 		qfLog->write(m.toUtf8());
 		qfLog->write("\n");
 		qfLog->flush();
 	}
+
 	le.addLogEntry(m);
 	if (type == QtFatalMsg) {
 #ifdef Q_OS_UNIX
@@ -554,9 +560,12 @@ int main(int argc, char **argv) {
 		return 0;
 	}
 
-	if (wipeSsl) {
+    if (wipeSsl)
+    {
 		qWarning("Removing all per-server SSL certificates from the database.");
-		foreach (int sid, ServerDB::getAllServers()) {
+
+        for (int sid : ServerDB::getAllServers())
+        {
 			ServerDB::setConf(sid, "key");
 			ServerDB::setConf(sid, "certificate");
 			ServerDB::setConf(sid, "passphrase");

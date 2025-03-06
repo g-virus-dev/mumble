@@ -24,11 +24,14 @@ QList< LicenseInfo > License::thirdPartyLicenses() {
 	return licenses;
 }
 
-QString License::printableThirdPartyLicenseInfo() {
+QString License::printableThirdPartyLicenseInfo()
+{
 	QString output;
 
-	QList< LicenseInfo > thirdPartyLicenses = License::thirdPartyLicenses();
-	foreach (LicenseInfo li, thirdPartyLicenses) {
+    QList<LicenseInfo> thirdPartyLicenses = License::thirdPartyLicenses();
+
+    for (const LicenseInfo& li : thirdPartyLicenses)
+    {
 		QString header          = QString::fromLatin1("%1 (%2)\n").arg(li.name).arg(li.url);
 		QString headerHorizLine = QString::fromLatin1("-").repeated(header.size()) + QLatin1String("\n");
 

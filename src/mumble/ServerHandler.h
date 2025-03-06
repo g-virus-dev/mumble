@@ -12,13 +12,6 @@
 #	include "win.h"
 #endif
 
-#ifndef Q_MOC_RUN
-#	include <boost/accumulators/accumulators.hpp>
-#	include <boost/accumulators/statistics/mean.hpp>
-#	include <boost/accumulators/statistics/stats.hpp>
-#	include <boost/accumulators/statistics/variance.hpp>
-#endif
-
 #include <memory>
 
 #include <QtCore/QEvent>
@@ -120,10 +113,14 @@ public:
 	 */
 	bool connectionUsesPerfectForwardSecrecy = false;
 
+    /*
+     *
+     * TODO: Boost is gonna die
 	boost::accumulators::accumulator_set<
 		double, boost::accumulators::stats< boost::accumulators::tag::mean, boost::accumulators::tag::variance,
 											boost::accumulators::tag::count > >
 		accTCP, accUDP, accClean;
+    */
 
 	ServerHandler();
 	~ServerHandler();

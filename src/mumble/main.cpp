@@ -632,12 +632,17 @@ int main(int argc, char **argv) {
 		Global::get().s.qsLanguage = settingsLocale.nativeLanguageName();
 	}
 
-	if (!pluginsToBeInstalled.isEmpty()) {
-		foreach (QString currentPlugin, pluginsToBeInstalled) {
-			try {
+    if (!pluginsToBeInstalled.isEmpty())
+    {
+        for (const QString& currentPlugin : pluginsToBeInstalled)
+        {
+            try
+            {
 				PluginInstaller installer(currentPlugin);
 				installer.exec();
-			} catch (const PluginInstallException &e) {
+            }
+            catch (const PluginInstallException &e)
+            {
 				qCritical() << qUtf8Printable(e.getMessage());
 			}
 		}

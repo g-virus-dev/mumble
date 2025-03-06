@@ -60,17 +60,21 @@ void WebFetch::finished() {
 
 		QMap< QString, QString > headers;
 
-		foreach (const QByteArray &headerName, qnr->rawHeaderList()) {
+        for (const QByteArray& headerName : qnr->rawHeaderList())
+        {
 			QString name  = fromUtf8(headerName);
 			QString value = fromUtf8(qnr->rawHeader(headerName));
-			if (!name.isEmpty() && !value.isEmpty()) {
+
+            if (!name.isEmpty() && !value.isEmpty())
+            {
 				headers.insert(name, value);
-				if (name == QLatin1String("Use-Service-Prefix")) {
-					const QRegularExpression servicePrefixRegExp(
-						QRegularExpression::anchoredPattern(QLatin1String("^[a-zA-Z]+$")));
-					if (servicePrefixRegExp.match(value).hasMatch()) {
+
+                if (name == QLatin1String("Use-Service-Prefix"))
+                {
+                    const QRegularExpression servicePrefixRegExp(QRegularExpression::anchoredPattern(QLatin1String("^[a-zA-Z]+$")));
+
+                    if (servicePrefixRegExp.match(value).hasMatch())
 						Global::get().s.qsServicePrefix = value.toLower();
-					}
 				}
 			}
 		}

@@ -124,13 +124,15 @@ void ProcessResolver::doResolve() {
 
 static constexpr const char *PROC_DIR = "/proc/";
 
-void ProcessResolver::doResolve() {
+void ProcessResolver::doResolve()
+{
 	QDir procDir(QString::fromLatin1(PROC_DIR));
 	QStringList entries = procDir.entryList();
 
 	bool ok;
 
-	foreach (const QString &currentEntry, entries) {
+    for (const QString& currentEntry : entries)
+    {
 		uint64_t pid = static_cast< unsigned long long int >(currentEntry.toLongLong(&ok, 10));
 
 		if (!ok) {

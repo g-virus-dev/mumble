@@ -151,8 +151,11 @@ ServerHandler::ServerHandler() : database(new Database(QLatin1String("ServerHand
 		QSslConfiguration::setDefaultConfiguration(config);
 
 		QStringList pref;
-		foreach (QSslCipher c, ciphers) { pref << c.name(); }
-		qWarning("ServerHandler: TLS cipher preference is \"%s\"", qPrintable(pref.join(QLatin1String(":"))));
+
+        for (const QSslCipher& c : ciphers)
+            pref << c.name();
+
+        qWarning("ServerHandler: TLS cipher preference is \"%s\"", qPrintable(pref.join(QLatin1String(":"))));
 	}
 
 #ifdef Q_OS_WIN
@@ -256,10 +259,12 @@ void ServerHandler::udpReady() {
 		if (m_udpDecoder.decode(buffer.subspan(0, buflen - 4))) {
 			switch (m_udpDecoder.getMessageType()) {
 				case Mumble::Protocol::UDPMessageType::Ping: {
+                    /*
+                     * TODO: Boost is gonna die
 					const Mumble::Protocol::PingData pingData = m_udpDecoder.getPingData();
 
 					accUDP(static_cast< double >(tTimestamp.elapsed() - pingData.timestamp) / 1000.0);
-
+                    */
 					break;
 				}
 				case Mumble::Protocol::UDPMessageType::Audio: {
@@ -355,7 +360,7 @@ void ServerHandler::setServerSynchronized(bool synchronized) {
 
 void ServerHandler::hostnameResolved() {
 	ServerResolver *sr                    = qobject_cast< ServerResolver * >(QObject::sender());
-	QList< ServerResolverRecord > records = sr->records();
+    QList<ServerResolverRecord> records = sr->records();
 
 	// Exit the ServerHandler thread's event loop with an
 	// error code in case our hostname lookup failed.
@@ -366,15 +371,19 @@ void ServerHandler::hostnameResolved() {
 
 	// Create the list of target host:port pairs
 	// that the ServerHandler should try to connect to.
-	QList< ServerAddress > ql;
-	QHash< ServerAddress, QString > qh;
-	foreach (ServerResolverRecord record, records) {
-		foreach (HostAddress addr, record.addresses()) {
+    QList<ServerAddress> ql;
+    QHash<ServerAddress, QString> qh;
+
+    for (const ServerResolverRecord& record : records)
+    {
+        for (const HostAddress& addr : record.addresses())
+        {
 			auto sa = ServerAddress(addr, record.port());
 			ql.append(sa);
 			qh[sa] = record.hostname();
 		}
 	}
+
 	qlAddresses = ql;
 	qhHostnames = qh;
 
@@ -455,7 +464,9 @@ void ServerHandler::run() {
 
 		Global::get().mw->rtLast = MumbleProto::Reject_RejectType_None;
 
-		accUDP = accTCP = accClean;
+        /*
+         * TODO: Boost is gonna die
+        accUDP = accTCP = accClean;*/
 
 		m_version   = Version::UNKNOWN;
 		qsRelease   = QString();
@@ -518,7 +529,7 @@ void ServerHandler::setSslErrors(const QList< QSslError > &errors) {
 #ifdef Q_OS_WIN
 	bool bRevalidate = false;
 	QList< QSslError > errorsToRemove;
-	foreach (const QSslError &e, errors) {
+    for (const QSslError &e : errors) {
 		switch (e.error()) {
 			case QSslError::UnableToGetLocalIssuerCertificate:
 			case QSslError::SelfSignedCertificateInChain:
@@ -534,7 +545,7 @@ void ServerHandler::setSslErrors(const QList< QSslError > &errors) {
 		QByteArray der    = qscCert.first().toDer();
 		DWORD errorStatus = WinVerifySslCert(der);
 		if (errorStatus == CERT_TRUST_NO_ERROR) {
-			foreach (const QSslError &e, errorsToRemove) { newErrors.removeOne(e); }
+            for (const QSslError &e : errorsToRemove) { newErrors.removeOne(e); }
 		}
 		if (newErrors.isEmpty()) {
 			connection->proceedAnyway();
@@ -594,9 +605,10 @@ void ServerHandler::sendPingInternal() {
 	mpp.set_good(connection->csCrypt->m_statsLocal.good);
 	mpp.set_late(connection->csCrypt->m_statsLocal.late);
 	mpp.set_lost(connection->csCrypt->m_statsLocal.lost);
-	mpp.set_resync(connection->csCrypt->m_statsLocal.resync);
+    mpp.set_resync(connection->csCrypt->m_statsLocal.resync);
 
-
+    /*
+     * TODO: Boost is gonna die
 	if (boost::accumulators::count(accUDP)) {
 		mpp.set_udp_ping_avg(static_cast< float >(boost::accumulators::mean(accUDP)));
 		mpp.set_udp_ping_var(static_cast< float >(boost::accumulators::variance(accUDP)));
@@ -608,7 +620,7 @@ void ServerHandler::sendPingInternal() {
 		mpp.set_tcp_ping_var(static_cast< float >(boost::accumulators::variance(accTCP)));
 	}
 	mpp.set_tcp_packets(static_cast< unsigned int >(boost::accumulators::count(accTCP)));
-
+    */
 	sendMessage(mpp);
 
 	iInFlightTCPPings += 1;
@@ -643,7 +655,10 @@ void ServerHandler::message(Mumble::Protocol::TCPMessageType type, const QByteAr
 			connection->csCrypt->m_statsRemote.late   = msg.late();
 			connection->csCrypt->m_statsRemote.lost   = msg.lost();
 			connection->csCrypt->m_statsRemote.resync = msg.resync();
+            /*
+             * TODO: Boost is gonna die
 			accTCP(static_cast< double >(tTimestamp.elapsed() - msg.timestamp()) / 1000.0);
+            */
 
 			if (((connection->csCrypt->m_statsRemote.good == 0) || (connection->csCrypt->m_statsLocal.good == 0))
 				&& bUdp && (tTimestamp.elapsed() > 20000000ULL)) {
@@ -789,7 +804,7 @@ void ServerHandler::serverConnectionConnected() {
 	mpa.set_password(u8(qsPassword));
 
 	QStringList tokens = database->getTokens(qbaDigest);
-	foreach (const QString &qs, tokens)
+    for (const QString &qs : tokens)
 		mpa.add_tokens(u8(qs));
 
 	mpa.set_opus(true);
@@ -899,7 +914,7 @@ void ServerHandler::joinChannel(unsigned int uiSession, unsigned int channel,
 	mpus.set_session(uiSession);
 	mpus.set_channel_id(channel);
 
-	foreach (const QString &tmpToken, temporaryAccessTokens) {
+    for (const QString &tmpToken : temporaryAccessTokens) {
 		mpus.add_temporary_access_tokens(tmpToken.toUtf8().constData());
 	}
 
@@ -1080,7 +1095,7 @@ void ServerHandler::setUserTexture(unsigned int uiSession, const QByteArray &qba
 
 void ServerHandler::setTokens(const QStringList &tokens) {
 	MumbleProto::Authenticate msg;
-	foreach (const QString &qs, tokens)
+    for (const QString &qs : tokens)
 		msg.add_tokens(u8(qs));
 	sendMessage(msg);
 }

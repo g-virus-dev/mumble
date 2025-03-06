@@ -40,13 +40,15 @@ QList< ClientUser * > ClientUser::getTalking() {
 	return c_qlTalking;
 }
 
-QList< ClientUser * > ClientUser::getActive() {
+QList< ClientUser * > ClientUser::getActive()
+{
 	QReadLocker lock(&c_qrwlUsers);
 	QList< ClientUser * > activeUsers;
-	foreach (ClientUser *cu, c_qmUsers) {
+
+    for (ClientUser* cu : c_qmUsers)
 		if (cu->isActive())
 			activeUsers << cu;
-	}
+
 	return activeUsers;
 }
 
@@ -69,18 +71,22 @@ ClientUser *ClientUser::add(unsigned int uiSession, QObject *po) {
 	return p;
 }
 
-ClientUser *ClientUser::match(const ClientUser *other, bool matchname) {
+const ClientUser* ClientUser::match(const ClientUser *other, bool matchname)
+{
 	QReadLocker lock(&c_qrwlUsers);
 
-	ClientUser *p;
-	foreach (p, c_qmUsers) {
+    for (const ClientUser* p : c_qmUsers)
+    {
 		if (p == other)
 			continue;
+
 		if ((p->iId >= 0) && (p->iId == other->iId))
 			return p;
+
 		if (matchname && (p->qsName == other->qsName))
 			return p;
 	}
+
 	return nullptr;
 }
 

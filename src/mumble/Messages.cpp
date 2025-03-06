@@ -1131,7 +1131,8 @@ void MainWindow::msgContextActionModify(const MumbleProto::ContextActionModify &
 /// @param msg The message object instructing the deletion of the action with further information about it
 ///
 /// @see MainWindow::msgContextActionModify
-void MainWindow::removeContextAction(const MumbleProto::ContextActionModify &msg) {
+void MainWindow::removeContextAction(const MumbleProto::ContextActionModify &msg)
+{
 	QString action = u8(msg.action());
 
 	QSet< QAction * > qs;
@@ -1139,11 +1140,14 @@ void MainWindow::removeContextAction(const MumbleProto::ContextActionModify &msg
 	qs += QSet< QAction * >(qlChannelActions.begin(), qlChannelActions.end());
 	qs += QSet< QAction * >(qlUserActions.begin(), qlUserActions.end());
 
-	foreach (QAction *a, qs) {
-		if (a->data() == action) {
+    for (const QAction* a : qs)
+    {
+        if (a->data() == action)
+        {
 			qlServerActions.removeOne(a);
 			qlChannelActions.removeOne(a);
 			qlUserActions.removeOne(a);
+
 			delete a;
 		}
 	}
@@ -1189,8 +1193,9 @@ void MainWindow::msgVoiceTarget(const MumbleProto::VoiceTarget &) {
 void MainWindow::msgPermissionQuery(const MumbleProto::PermissionQuery &msg) {
 	Channel *current = pmModel->getChannel(qtvUsers->currentIndex());
 
-	if (msg.flush()) {
-		foreach (Channel *c, Channel::c_qhChannels)
+    if (msg.flush())
+    {
+        for (Channel* c : Channel::c_qhChannels)
 			c->uiPermissions = 0;
 
 		// We always need the permissions of the current focus channel
@@ -1200,7 +1205,9 @@ void MainWindow::msgPermissionQuery(const MumbleProto::PermissionQuery &msg) {
 			current->uiPermissions = ChanACL::All;
 		}
 	}
+
 	Channel *c = Channel::get(msg.channel_id());
+
 	if (c) {
 		c->uiPermissions = msg.permissions();
 		if (c->iId == 0)

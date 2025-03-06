@@ -26,31 +26,40 @@ Group::Group(Channel *assoc, const QString &name) {
 
 #ifdef MURMUR
 
-QSet< int > Group::members() {
+QSet< int > Group::members()
+{
 	QStack< Group * > s;
 	QSet< int > m;
 	Channel *p;
-	Group *g;
-	int i;
+    Group *g;
 
 	p = c;
-	while (p) {
+    while (p)
+    {
 		g = p->qhGroups.value(qsName);
-		if (g) {
+
+        if (g)
+        {
 			if ((p != c) && !g->bInheritable)
 				break;
+
 			s.push(g);
+
 			if (!g->bInherit)
 				break;
 		}
+
 		p = p->cParent;
 	}
 
-	while (!s.isEmpty()) {
+    while (!s.isEmpty())
+    {
 		g = s.pop();
-		foreach (i, g->qsAdd)
+
+        for (auto i : g->qsAdd)
 			m.insert(i);
-		foreach (i, g->qsRemove)
+
+        for (auto i : g->qsRemove)
 			m.remove(i);
 	}
 
@@ -77,17 +86,19 @@ Group *Group::getGroup(Channel *chan, QString name) {
 QSet< QString > Group::groupNames(Channel *chan) {
 	QStack< Channel * > s;
 	QSet< QString > m;
-	Channel *c = chan;
-	Group *g;
+    Channel *c = chan;
 
 	while (c) {
 		s.push(c);
 		c = c->cParent;
 	}
 
-	while (!s.isEmpty()) {
+    while (!s.isEmpty())
+    {
 		c = s.pop();
-		foreach (g, c->qhGroups) {
+
+        for (Group* g : c->qhGroups)
+        {
 			if ((chan != c) && (!g->bInheritable))
 				m.remove(g->qsName);
 			else

@@ -279,7 +279,8 @@ void RichTextEditor::on_qptePlainText_textChanged() {
 	bChanged  = true;
 }
 
-void RichTextEditor::on_qteRichText_textChanged() {
+void RichTextEditor::on_qteRichText_textChanged()
+{
 	bModified = true;
 	bChanged  = true;
 	updateActions();
@@ -290,55 +291,74 @@ void RichTextEditor::on_qteRichText_textChanged() {
 	richToPlain();
 
 	const QString &plainText = qptePlainText->toPlainText();
-
 	bool over = true;
+    unsigned int imagelength = static_cast< unsigned int >(plainText.length());
 
-	unsigned int imagelength = static_cast< unsigned int >(plainText.length());
-
-
-	if (Global::get().uiMessageLength && imagelength <= Global::get().uiMessageLength) {
+    if (Global::get().uiMessageLength && imagelength <= Global::get().uiMessageLength)
+    {
 		over = false;
-	} else if (Global::get().uiImageLength && imagelength > Global::get().uiImageLength) {
+    }
+    else if (Global::get().uiImageLength && imagelength > Global::get().uiImageLength)
+    {
 		over = true;
-	} else {
+    }
+    else
+    {
 		QString qsOut;
 		QXmlStreamReader qxsr(QString::fromLatin1("<document>%1</document>").arg(plainText));
 		QXmlStreamWriter qxsw(&qsOut);
-		while (!qxsr.atEnd()) {
-			switch (qxsr.readNext()) {
-				case QXmlStreamReader::Invalid:
-					return;
-				case QXmlStreamReader::StartElement: {
-					if (qxsr.name() == QLatin1String("img")) {
-						QXmlStreamAttributes attr = qxsr.attributes();
+
+        while (!qxsr.atEnd())
+        {
+            switch (qxsr.readNext())
+            {
+            case QXmlStreamReader::Invalid:
+                return;
+
+            case QXmlStreamReader::StartElement:
+                {
+                    if (qxsr.name() == QLatin1String("img"))
+                    {
+                        //QXmlStreamAttributes attr = qxsr.attributes();
 
 						qxsw.writeStartElement(qxsr.namespaceUri().toString(), qxsr.name().toString());
-						foreach (const QXmlStreamAttribute &a, qxsr.attributes())
+
+                        for (const QXmlStreamAttribute &a : qxsr.attributes())
 							if (a.name() != QLatin1String("src"))
 								qxsw.writeAttribute(a);
-					} else {
+                    }
+                    else
+                    {
 						qxsw.writeCurrentToken(qxsr);
-					}
-				} break;
-				default:
-					qxsw.writeCurrentToken(qxsr);
-					break;
+                    }
+
+                    break;
+                }
+
+            default:
+                qxsw.writeCurrentToken(qxsr);
+                break;
 			}
 		}
+
 		over = (static_cast< unsigned int >(qsOut.length()) > Global::get().uiMessageLength);
 	}
 
-
 	QString tooltip = tr("Message is too long.");
 
-	if (!over) {
+    if (!over)
+    {
 		if (QToolTip::text() == tooltip)
 			QToolTip::hideText();
-	} else {
+    }
+    else
+    {
 		QPoint p       = QCursor::pos();
 		const QRect &r = qteRichText->rect();
+
 		if (!r.contains(qteRichText->mapFromGlobal(p)))
 			p = qteRichText->mapToGlobal(r.center());
+
 		QToolTip::showText(p, tooltip, qteRichText);
 	}
 }

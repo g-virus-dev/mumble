@@ -45,19 +45,21 @@ BanEditor::BanEditor(const MumbleProto::BanList &msg, QWidget *p) : QDialog(p), 
 	refreshBanList();
 }
 
-void BanEditor::accept() {
+void BanEditor::accept()
+{
 	MumbleProto::BanList msg;
 
-	foreach (const Ban &b, qlBans) {
-		MumbleProto::BanList_BanEntry *be = msg.add_bans();
-		be->set_address(b.haAddress.toStdString());
-		assert(b.iMask >= 0);
-		be->set_mask(static_cast< unsigned int >(b.iMask));
-		be->set_name(u8(b.qsUsername));
-		be->set_hash(u8(b.qsHash));
-		be->set_reason(u8(b.qsReason));
-		be->set_start(u8(b.qdtStart.toString(Qt::ISODate)));
-		be->set_duration(b.iDuration);
+    for (const Ban& b : qlBans)
+    {
+        MumbleProto::BanList_BanEntry* be = msg.add_bans();
+        be->set_address(b.haAddress.toStdString());
+        assert(b.iMask >= 0);
+        be->set_mask(static_cast< unsigned int >(b.iMask));
+        be->set_name(u8(b.qsUsername));
+        be->set_hash(u8(b.qsHash));
+        be->set_reason(u8(b.qsReason));
+        be->set_start(u8(b.qdtStart.toString(Qt::ISODate)));
+        be->set_duration(b.iDuration);
 	}
 
 	Global::get().sh->sendMessage(msg);
@@ -172,8 +174,10 @@ void BanEditor::refreshBanList() {
 
 	std::sort(qlBans.begin(), qlBans.end());
 
-	foreach (const Ban &ban, qlBans) {
-		const QHostAddress &addr = ban.haAddress.toAddress();
+    for (const Ban& ban : qlBans)
+    {
+        const QHostAddress& addr = ban.haAddress.toAddress();
+
 		if (ban.qsUsername.isEmpty())
 			qlwBans->addItem(addr.toString());
 		else
@@ -199,7 +203,8 @@ void BanEditor::on_qleSearch_textChanged(const QString &match) {
 	qdteStart->setDateTime(QDateTime::currentDateTime());
 	qdteEnd->setDateTime(QDateTime::currentDateTime());
 
-	foreach (QListWidgetItem *item, qlwBans->findItems(QString(), Qt::MatchContains)) {
+    for (QListWidgetItem* item : qlwBans->findItems(QString(), Qt::MatchContains))
+    {
 		if (!item->text().contains(match, Qt::CaseInsensitive))
 			item->setHidden(true);
 		else

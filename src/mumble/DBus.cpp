@@ -66,18 +66,25 @@ void MumbleDBus::getCurrentUrl(const QDBusMessage &msg) {
 	QDBusConnection::sessionBus().send(msg.createReply(QString::fromLatin1(u.toEncoded())));
 }
 
-void MumbleDBus::getTalkingUsers(const QDBusMessage &msg) {
-	if (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession) {
-		QDBusConnection::sessionBus().send(msg.createErrorReply(
-			QLatin1String("net.sourceforge.mumble.Error.connection"), QLatin1String("Not connected")));
+void MumbleDBus::getTalkingUsers(const QDBusMessage &msg)
+{
+    if (!Global::get().sh || !Global::get().sh->isRunning() || !Global::get().uiSession)
+    {
+        QDBusConnection::sessionBus().send(msg.createErrorReply(QLatin1String("net.sourceforge.mumble.Error.connection"), QLatin1String("Not connected")));
+
 		return;
 	}
+
 	QStringList names;
-	foreach (ClientUser *cu, ClientUser::getTalking()) { names.append(cu->qsName); }
-	QDBusConnection::sessionBus().send(msg.createReply(names));
+
+    for (const ClientUser* cu : ClientUser::getTalking())
+        names.append(cu->qsName);
+
+    QDBusConnection::sessionBus().send(msg.createReply(names));
 }
 
-void MumbleDBus::focus() {
+void MumbleDBus::focus()
+{
 	Global::get().mw->show();
 	Global::get().mw->raise();
 	Global::get().mw->activateWindow();

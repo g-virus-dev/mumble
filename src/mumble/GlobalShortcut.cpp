@@ -59,7 +59,8 @@ ShortcutActionWidget::ShortcutActionWidget(QWidget *p) : QWidget(p) {
 	QFontMetrics fontMetrics = m_comboBox->fontMetrics();
 	int maxWidth             = m_comboBox->minimumWidth();
 
-	foreach (GlobalShortcut *gs, GlobalShortcutEngine::engine->qmShortcuts) {
+    for (const GlobalShortcut* gs : GlobalShortcutEngine::engine->qmShortcuts)
+    {
 		m_comboBox->insertItem(idx, gs->name);
 		m_comboBox->setItemData(idx, gs->idx);
 		if (!gs->qsToolTip.isEmpty()) {
@@ -159,8 +160,10 @@ ChannelTarget ChannelSelectWidget::currentChannel() const {
 	return itemData(currentIndex()).toUInt();
 }
 
-void iterateChannelChildren(QTreeWidgetItem *root, Channel *chan, QMap< int, QTreeWidgetItem * > &map) {
-	foreach (Channel *c, chan->qlChannels) {
+void iterateChannelChildren(QTreeWidgetItem *root, Channel *chan, QMap< int, QTreeWidgetItem * > &map)
+{
+    for (Channel* c : chan->qlChannels)
+    {
 		QTreeWidgetItem *sub = new QTreeWidgetItem(root, QStringList(c->qsName));
 		sub->setData(0, Qt::UserRole, c->iId);
 		map.insert(static_cast< int >(c->iId), sub);
@@ -205,37 +208,42 @@ ShortcutTargetDialog::ShortcutTargetDialog(const ShortcutTarget &st, QWidget *pw
 	}
 
 	// If we are connected to a server also add all connected players with certificates to the list
-	if (Global::get().uiSession) {
-		QMap< QString, QString > others;
-		QMap< QString, QString >::const_iterator i;
+    if (Global::get().uiSession)
+    {
+        std::map<QString, QString> others;
 
 		QReadLocker lock(&ClientUser::c_qrwlUsers);
-		foreach (ClientUser *p, ClientUser::c_qmUsers) {
-			if ((p->uiSession != Global::get().uiSession) && p->qsFriendName.isEmpty() && !p->qsHash.isEmpty()) {
-				others.insert(p->qsName, p->qsHash);
+
+        for (const ClientUser* p : ClientUser::c_qmUsers)
+        {
+            if ((p->uiSession != Global::get().uiSession) && p->qsFriendName.isEmpty() && !p->qsHash.isEmpty())
+            {
+                others[p->qsName] = p->qsHash;
 				qmHashNames.insert(p->qsHash, p->qsName);
 			}
 		}
 
-		for (i = others.constBegin(); i != others.constEnd(); ++i) {
-			qcbUser->addItem(i.key(), i.value());
-		}
+        for (const auto& [key, value] : others)
+            qcbUser->addItem(key, value);
 	}
 
-	QMap< QString, QString > users;
+    std::map<QString, QString> users;
 
-	foreach (const QString &hash, st.qlUsers) {
+    for (const QString &hash : st.qlUsers)
+    {
 		if (qmHashNames.contains(hash))
-			users.insert(qmHashNames.value(hash), hash);
+            users[qmHashNames.value(hash)] = hash;
 		else
-			users.insert(QString::fromLatin1("#%1").arg(hash), hash);
+            users[QString::fromLatin1("#%1").arg(hash)] = hash;
 	}
 
-	{
-		QMap< QString, QString >::const_iterator i;
-		for (i = users.constBegin(); i != users.constEnd(); ++i) {
-			QListWidgetItem *itm = new QListWidgetItem(i.key());
-			itm->setData(Qt::UserRole, i.value());
+    {
+        for (const auto& [key, value] : users)
+        {
+            QListWidgetItem* itm = new QListWidgetItem(key);
+
+            itm->setData(Qt::UserRole, value);
+
 			qlwUsers->addItem(itm);
 		}
 	}
@@ -257,13 +265,15 @@ ShortcutTargetDialog::ShortcutTargetDialog(const ShortcutTarget &st, QWidget *pw
 	current->setData(0, Qt::UserRole, SHORTCUT_TARGET_CURRENT);
 	qmTree.insert(-3, current);
 
-	for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i)
+    {
 		QTreeWidgetItem *sub = new QTreeWidgetItem(current, QStringList(tr("Subchannel #%1").arg(i + 1)));
 		sub->setData(0, Qt::UserRole, SHORTCUT_TARGET_SUBCHANNEL - i);
 		qmTree.insert(SHORTCUT_TARGET_SUBCHANNEL - i, sub);
 	}
 
-	for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; ++i)
+    {
 		QTreeWidgetItem *psub =
 			new QTreeWidgetItem(parent_item, QStringList(UPARROW + tr("Subchannel #%1").arg(i + 1)));
 		psub->setData(0, Qt::UserRole, SHORTCUT_TARGET_PARENT_SUBCHANNEL - i);
@@ -271,7 +281,8 @@ ShortcutTargetDialog::ShortcutTargetDialog(const ShortcutTarget &st, QWidget *pw
 	}
 
 	// And if we are connected add the channels on the current server
-	if (Global::get().uiSession) {
+    if (Global::get().uiSession)
+    {
 		Channel *c             = Channel::get(Channel::ROOT_ID);
 		QTreeWidgetItem *sroot = new QTreeWidgetItem(qtwChannels, QStringList(c->qsName));
 		qmTree.insert(0, sroot);
@@ -317,9 +328,11 @@ void ShortcutTargetDialog::accept() {
 
 	if (!stTarget.bCurrentSelection) {
 		QList< QListWidgetItem * > ql = qlwUsers->findItems(QString(), Qt::MatchStartsWith);
-		foreach (QListWidgetItem *itm, ql) { stTarget.qlUsers << itm->data(Qt::UserRole).toString(); }
 
-		QTreeWidgetItem *qtwi = qtwChannels->currentItem();
+        for (QListWidgetItem* itm : ql)
+            stTarget.qlUsers << itm->data(Qt::UserRole).toString();
+
+        QTreeWidgetItem *qtwi = qtwChannels->currentItem();
 		if (qtwi) {
 			stTarget.iChannel = qtwi->data(0, Qt::UserRole).toInt();
 			stTarget.qsGroup  = qleGroup->text().trimmed();
@@ -427,14 +440,15 @@ QString ShortcutTargetWidget::targetString(const ShortcutTarget &st) {
 			QMap< QString, QString > hashes;
 
 			QReadLocker lock(&ClientUser::c_qrwlUsers);
-			foreach (ClientUser *p, ClientUser::c_qmUsers) {
-				if (!p->qsHash.isEmpty()) {
+            for (const ClientUser* p : ClientUser::c_qmUsers)
+            {
+                if (!p->qsHash.isEmpty())
 					hashes.insert(p->qsHash, p->qsName);
-				}
 			}
 
 			QStringList users;
-			foreach (const QString &hash, st.qlUsers) {
+            for (const QString &hash : st.qlUsers)
+            {
 				QString name;
 				if (hashes.contains(hash)) {
 					name = hashes.value(hash);
@@ -874,7 +888,7 @@ void GlobalShortcutConfig::reload() {
 	std::stable_sort(qlShortcuts.begin(), qlShortcuts.end());
 	qtwShortcuts->clear();
 
-	foreach (const Shortcut &sc, qlShortcuts) {
+    for (const Shortcut &sc : qlShortcuts) {
 		QTreeWidgetItem *item = itemForShortcut(sc);
 		qtwShortcuts->addTopLevelItem(item);
 		on_qtwShortcuts_itemChanged(item, 0);
@@ -902,9 +916,9 @@ GlobalShortcutEngine::GlobalShortcutEngine(QObject *p) : QThread(p) {
 
 GlobalShortcutEngine::~GlobalShortcutEngine() {
 	QSet< ShortcutKey * > qs;
-	foreach (const QList< ShortcutKey * > &ql, qlShortcutList) { qs += QSet< ShortcutKey * >(ql.begin(), ql.end()); }
+    for (const QList< ShortcutKey * > &ql : qlShortcutList) { qs += QSet< ShortcutKey * >(ql.begin(), ql.end()); }
 
-	foreach (ShortcutKey *sk, qs)
+    for (ShortcutKey *sk : qs)
 		delete sk;
 }
 
@@ -912,16 +926,16 @@ void GlobalShortcutEngine::remap() {
 	bNeedRemap = false;
 
 	QSet< ShortcutKey * > qs;
-	foreach (const QList< ShortcutKey * > &ql, qlShortcutList) { qs += QSet< ShortcutKey * >(ql.begin(), ql.end()); }
+    for (const QList< ShortcutKey * > &ql : qlShortcutList) { qs += QSet< ShortcutKey * >(ql.begin(), ql.end()); }
 
-	foreach (ShortcutKey *sk, qs)
+    for (ShortcutKey *sk : qs)
 		delete sk;
 
 	qlButtonList.clear();
 	qlShortcutList.clear();
 	qlDownButtons.clear();
 
-	foreach (const Shortcut &sc, Global::get().s.qlShortcuts) {
+    for (const Shortcut &sc : Global::get().s.qlShortcuts) {
 		GlobalShortcut *gs = qmShortcuts.value(sc.iIndex);
 		if (gs && !sc.qlButtons.isEmpty()) {
 			ShortcutKey *sk = new ShortcutKey;
@@ -929,7 +943,7 @@ void GlobalShortcutEngine::remap() {
 			sk->iNumUp      = sc.qlButtons.count();
 			sk->gs          = gs;
 
-			foreach (const QVariant &button, sc.qlButtons) {
+            for (const QVariant &button : sc.qlButtons) {
 				auto idx = qlButtonList.indexOf(button);
 				if (idx == -1) {
 					qlButtonList << button;
@@ -1009,7 +1023,7 @@ bool GlobalShortcutEngine::handleButton(const QVariant &button, bool down) {
 
 	bool suppress = false;
 
-	foreach (ShortcutKey *sk, qlShortcutList.at(idx)) {
+    for (ShortcutKey *sk : qlShortcutList.at(idx)) {
 		if (down) {
 			sk->iNumUp--;
 			if (sk->iNumUp == 0) {

@@ -97,11 +97,14 @@ ModelItem::~ModelItem() {
 	}
 }
 
-void ModelItem::wipe() {
-	foreach (ModelItem *i, qlChildren) {
+void ModelItem::wipe()
+{
+    for (ModelItem *i : qlChildren)
+    {
 		i->wipe();
 		delete i;
 	}
+
 	qlChildren.clear();
 	iUsers = 0;
 }
@@ -158,33 +161,39 @@ int ModelItem::rows() const {
 	return static_cast< int >(qlChildren.count());
 }
 
-int ModelItem::insertIndex(Channel *c) const {
-	QList< Channel * > qlpc;
-	ModelItem *item;
-
+int ModelItem::insertIndex(Channel *c) const
+{
+    QList< Channel * > qlpc;
 	int ocount = 0;
 
-	foreach (item, qlChildren) {
-		if (item->cChan) {
-			if (item->cChan != c) {
+    for (const ModelItem* item : qlChildren)
+    {
+        if (item->cChan)
+        {
+            if (item->cChan != c)
+            {
 				qlpc << item->cChan;
 			}
-		} else
+        }
+        else
 			ocount++;
 	}
+
 	qlpc << c;
+
 	std::sort(qlpc.begin(), qlpc.end(), Channel::lessThan);
+
 	return static_cast< int >(qlpc.indexOf(c) + (bUsersTop ? ocount : 0));
 }
 
-int ModelItem::insertIndex(ClientUser *p, bool userIsListener) const {
-	QList< ClientUser * > qlclientuser;
-	ModelItem *item;
-
-	int ocount        = 0;
+int ModelItem::insertIndex(ClientUser *p, bool userIsListener) const
+{
+    QList< ClientUser * > qlclientuser;
+    int ocount        = 0;
 	int listenerCount = 0;
 
-	foreach (item, qlChildren) {
+    for (const ModelItem* item : qlChildren)
+    {
 		if (item->pUser) {
 			if (item->pUser != p) {
 				// Make sure listeners and non-listeners are all grouped together and not mixed
@@ -1038,11 +1047,13 @@ void UserModel::recheckLinks() {
 
 	qsLinked = all;
 
-	foreach (Channel *c, changed) {
+    for (Channel* c : changed)
+    {
 		QModelIndex idx = index(c);
 		emit dataChanged(idx, idx);
 		bChanged = true;
 	}
+
 	if (bChanged)
 		updateOverlay();
 }
@@ -1431,7 +1442,7 @@ void UserModel::removeChannelListener(const ClientUser *p, const Channel *c) {
 		}
 	} else {
 		// remove all items
-		foreach (ModelItem *currentItem, items) { removeChannelListener(currentItem); }
+        for (ModelItem *currentItem : items) { removeChannelListener(currentItem); }
 	}
 }
 
@@ -1510,7 +1521,7 @@ bool UserModel::removeChannel(Channel *c, const bool onlyIfUnoccupied) {
 	if (onlyIfUnoccupied && item->iUsers != 0)
 		return false; // Checks full hierarchy
 
-	foreach (const ModelItem *i, item->qlChildren) {
+    for (const ModelItem *i : item->qlChildren) {
 		if (i->pUser) {
 			if (i->isListener) {
 				removeChannelListener(i->pUser, c);
@@ -1570,13 +1581,13 @@ void UserModel::moveChannel(Channel *c, Channel *p) {
 }
 
 void UserModel::linkChannels(Channel *c, QList< Channel * > links) {
-	foreach (Channel *l, links)
+    for (Channel *l : links)
 		c->link(l);
 	recheckLinks();
 }
 
 void UserModel::unlinkChannels(Channel *c, QList< Channel * > links) {
-	foreach (Channel *l, links)
+    for (Channel *l : links)
 		c->unlink(l);
 	recheckLinks();
 }
@@ -1587,21 +1598,21 @@ void UserModel::unlinkAll(Channel *c) {
 }
 
 void UserModel::removeAll() {
-	ModelItem *item = miRoot;
-	ModelItem *i;
+    ModelItem *item = miRoot;
 
 	uiSessionComment    = 0;
 	iChannelDescription = -1;
 	bClicked            = false;
 
 	// in order to avoid complications, we remove all ChannelListeners first
-	foreach (i, item->qlChildren) {
-		if (i->pUser && i->isListener) {
-			removeChannelListener(i, item);
-		}
+    for (ModelItem* i : item->qlChildren)
+    {
+        if (i->pUser && i->isListener)
+            removeChannelListener(i, item);
 	}
 
-	foreach (i, item->qlChildren) {
+    for (const ModelItem* i : item->qlChildren)
+    {
 		if (i->pUser)
 			removeUser(i->pUser);
 		else
@@ -1701,7 +1712,7 @@ Channel *UserModel::getSubChannel(Channel *p, int idx) const {
 	if (!item)
 		return nullptr;
 
-	foreach (ModelItem *i, item->qlChildren) {
+    for (const ModelItem *i : item->qlChildren) {
 		if (i->cChan) {
 			if (idx == 0)
 				return i->cChan;
@@ -1752,12 +1763,13 @@ QStringList UserModel::mimeTypes() const {
 	return sl;
 }
 
-QMimeData *UserModel::mimeData(const QModelIndexList &idxs) const {
-	QModelIndex idx;
+QMimeData *UserModel::mimeData(const QModelIndexList &idxs) const
+{
 	QByteArray qba;
 	QDataStream ds(&qba, QIODevice::WriteOnly);
 
-	foreach (idx, idxs) {
+    for (const auto& idx : idxs)
+    {
 		ClientUser *p = getUser(idx);
 		Channel *c    = getChannel(idx);
 		if (p) {

@@ -87,8 +87,10 @@ void ServerResolverPrivate::hostResolved(QHostInfo hostInfo) {
 		QList< QHostAddress > resolvedAddresses = hostInfo.addresses();
 
 		// Convert QHostAddress -> HostAddress.
-		QList< HostAddress > addresses;
-		foreach (QHostAddress ha, resolvedAddresses) { addresses << HostAddress(ha); }
+        QList<HostAddress> addresses;
+
+        for (const QHostAddress& ha : resolvedAddresses)
+            addresses << HostAddress(ha);
 
 		qint64 priority = normalizeSrvPriority(record.priority(), record.weight());
 		m_resolved << ServerResolverRecord(record.target(), record.port(), priority, addresses);
@@ -100,13 +102,17 @@ void ServerResolverPrivate::hostResolved(QHostInfo hostInfo) {
 	}
 }
 
-void ServerResolverPrivate::hostFallbackResolved(QHostInfo hostInfo) {
-	if (hostInfo.error() == QHostInfo::NoError) {
+void ServerResolverPrivate::hostFallbackResolved(QHostInfo hostInfo)
+{
+    if (hostInfo.error() == QHostInfo::NoError)
+    {
 		QList< QHostAddress > resolvedAddresses = hostInfo.addresses();
 
 		// Convert QHostAddress -> HostAddress.
-		QList< HostAddress > addresses;
-		foreach (QHostAddress ha, resolvedAddresses) { addresses << HostAddress(ha); }
+        QList<HostAddress> addresses;
+
+        for (const QHostAddress& ha : resolvedAddresses)
+            addresses << HostAddress(ha);
 
 		m_resolved << ServerResolverRecord(m_origHostname, m_origPort, 0, addresses);
 	}

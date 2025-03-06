@@ -132,20 +132,24 @@ bool Server::setChannelState(Channel *cChannel, Channel *cParent, const QString 
 		changed = true;
 	}
 
-	const QSet< Channel * > &oldset = cChannel->qsPermLinks;
+    const QSet<Channel*> &oldset = cChannel->qsPermLinks;
 
 	if (links != oldset) {
 		// Remove
-		foreach (Channel *l, oldset) {
-			if (!links.contains(l)) {
+        for (Channel* l : oldset)
+        {
+            if (!links.contains(l))
+            {
 				removeLink(cChannel, l);
 				mpcs.add_links_remove(l->iId);
 			}
 		}
 
 		// Add
-		foreach (Channel *l, links) {
-			if (!oldset.contains(l)) {
+        for (Channel* l : links)
+        {
+            if (!oldset.contains(l))
+            {
 				addLink(cChannel, l);
 				mpcs.add_links_add(l->iId);
 			}
@@ -183,14 +187,18 @@ bool Server::setChannelState(Channel *cChannel, Channel *cParent, const QString 
 	return true;
 }
 
-void Server::sendTextMessage(Channel *cChannel, ServerUser *pUser, bool tree, const QString &text) {
+void Server::sendTextMessage(Channel *cChannel, ServerUser *pUser, bool tree, const QString &text)
+{
 	MumbleProto::TextMessage mptm;
 	mptm.set_message(u8(text));
 
-	if (pUser) {
+    if (pUser)
+    {
 		mptm.add_session(pUser->uiSession);
 		sendMessage(pUser, mptm);
-	} else {
+    }
+    else
+    {
 		if (tree)
 			mptm.add_tree_id(cChannel->iId);
 		else
@@ -199,21 +207,23 @@ void Server::sendTextMessage(Channel *cChannel, ServerUser *pUser, bool tree, co
 		QSet< Channel * > chans;
 		QQueue< Channel * > q;
 		q << cChannel;
-		chans.insert(cChannel);
-		Channel *c;
+        chans.insert(cChannel);
 
-		if (tree) {
-			while (!q.isEmpty()) {
-				c = q.dequeue();
+        if (tree)
+        {
+            while (!q.isEmpty())
+            {
+                Channel* c = q.dequeue();
 				chans.insert(c);
-				foreach (c, c->qlChannels)
-					q.enqueue(c);
+
+                for (Channel* ch : c->qlChannels)
+                    q.enqueue(ch);
 			}
 		}
-		foreach (c, chans) {
-			foreach (User *p, c->qlUsers)
+
+        for (const Channel* ch : chans)
+            for (User* p : ch->qlUsers)
 				sendMessage(static_cast< ServerUser * >(p), mptm);
-		}
 	}
 }
 
@@ -223,34 +233,40 @@ void Server::sendTextMessage(Channel *cChannel, ServerUser *pUser, bool tree, co
  *
  * If userid is negative the absolute value is a session id. If it is positive it is a registration id.
  */
-void Server::setTempGroups(int userid, int sessionId, Channel *cChannel, const QStringList &groups) {
+void Server::setTempGroups(int userid, int sessionId, Channel *cChannel, const QStringList &groups)
+{
 	if (!cChannel)
 		cChannel = qhChannels.value(0);
 
 	{
 		QWriteLocker wl(&qrwlVoiceThread);
 
-		Group *g;
-		foreach (g, cChannel->qhGroups) {
+        for (Group* g : cChannel->qhGroups)
+        {
 			g->qsTemporary.remove(userid);
+
 			if (sessionId != 0)
 				g->qsTemporary.remove(-sessionId);
 		}
 
-		QString gname;
-		foreach (gname, groups) {
-			g = cChannel->qhGroups.value(gname);
-			if (!g) {
+        for (const QString& gname : groups)
+        {
+            Group* g = cChannel->qhGroups.value(gname);
+
+            if (!g)
 				g = new Group(cChannel, gname);
-			}
+
 			g->qsTemporary.insert(userid);
+
 			if (sessionId != 0)
 				g->qsTemporary.insert(-sessionId);
 		}
 	}
 
-	if (userid >= 0) {
-		User *p = qhUsers.value(static_cast< unsigned int >(userid));
+    if (userid >= 0)
+    {
+        User* p = qhUsers.value(static_cast< unsigned int >(userid));
+
 		if (p)
 			clearACLCache(p);
 	}
@@ -260,7 +276,8 @@ void Server::setTempGroups(int userid, int sessionId, Channel *cChannel, const Q
  * Clears temporary group memberships for the given User. If no channel is given root will be targeted.
  * If recursion is activated all temporary memberships in related channels will also be cleared.
  */
-void Server::clearTempGroups(User *user, Channel *cChannel, bool recurse) {
+void Server::clearTempGroups(User *user, Channel *cChannel, bool recurse)
+{
 	QList< Channel * > qlChans;
 	if (!cChannel)
 		cChannel = qhChannels.value(0);
@@ -270,10 +287,12 @@ void Server::clearTempGroups(User *user, Channel *cChannel, bool recurse) {
 	{
 		QWriteLocker wl(&qrwlVoiceThread);
 
-		while (!qlChans.isEmpty()) {
+        while (!qlChans.isEmpty())
+        {
 			Channel *chan = qlChans.takeLast();
-			Group *g;
-			foreach (g, chan->qhGroups) {
+
+            for (Group* g : chan->qhGroups)
+            {
 				g->qsTemporary.remove(user->iId);
 				g->qsTemporary.remove(-static_cast< int >(user->uiSession));
 			}

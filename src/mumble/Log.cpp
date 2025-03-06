@@ -158,37 +158,36 @@ void LogConfig::updateSelectAllButtons() {
 #endif
 	bool allSoundChecked = true;
 	bool allLimitChecked = true;
-	foreach (QTreeWidgetItem *i, qlItems) {
-		if (i == allMessagesItem) {
-			continue;
-		}
 
-		if (i->checkState(ColConsole) != Qt::Checked) {
-			allConsoleChecked = false;
-		}
-		if (i->checkState(ColNotification) != Qt::Checked) {
-			allNotificationChecked = false;
-		}
-		if (i->checkState(ColHighlight) != Qt::Checked) {
-			allHighlightChecked = false;
-		}
+    for (const QTreeWidgetItem* i : qlItems)
+    {
+        if (i == allMessagesItem)
+            continue;
+
+        if (i->checkState(ColConsole) != Qt::Checked)
+            allConsoleChecked = false;
+
+        if (i->checkState(ColNotification) != Qt::Checked)
+            allNotificationChecked = false;
+
+        if (i->checkState(ColHighlight) != Qt::Checked)
+            allHighlightChecked = false;
+
 #ifndef USE_NO_TTS
-		if (i->checkState(ColTTS) != Qt::Checked) {
+        if (i->checkState(ColTTS) != Qt::Checked)
 			allTTSChecked = false;
-		}
 #endif
-		if (i->checkState(ColMessageLimit) != Qt::Checked) {
+        if (i->checkState(ColMessageLimit) != Qt::Checked)
 			allLimitChecked = false;
-		}
-		if (i->checkState(ColStaticSound) != Qt::Checked) {
-			allSoundChecked = false;
-		}
 
-		if (!allConsoleChecked && !allNotificationChecked && !allHighlightChecked && !allSoundChecked) {
+        if (i->checkState(ColStaticSound) != Qt::Checked)
+            allSoundChecked = false;
+
+        if (!allConsoleChecked && !allNotificationChecked && !allHighlightChecked && !allSoundChecked)
+        {
 #ifndef USE_NO_TTS
-			if (!allTTSChecked) {
+            if (!allTTSChecked)
 				break;
-			}
 #else
 			break;
 #endif
@@ -218,13 +217,15 @@ QIcon LogConfig::icon() const {
 	return QIcon(QLatin1String("skin:config_msgs.png"));
 }
 
-void LogConfig::load(const Settings &r) {
+void LogConfig::load(const Settings& r)
+{
 	QList< QTreeWidgetItem * > qlItems = qtwMessages->findItems(QString(), Qt::MatchContains);
 
-	foreach (QTreeWidgetItem *i, qlItems) {
-		if (i == allMessagesItem) {
+    for (QTreeWidgetItem* i : qlItems)
+    {
+        if (i == allMessagesItem)
 			continue;
-		}
+
 		Log::MsgType mt         = static_cast< Log::MsgType >(i->data(ColMessage, Qt::UserRole).toInt());
 		Settings::MessageLog ml = static_cast< Settings::MessageLog >(r.qmMessages.value(mt));
 
@@ -262,12 +263,15 @@ void LogConfig::load(const Settings &r) {
 	qsbMessageLimitUsers->setValue(r.iMessageLimitUserThreshold);
 }
 
-void LogConfig::save() const {
+void LogConfig::save() const
+{
 	QList< QTreeWidgetItem * > qlItems = qtwMessages->findItems(QString(), Qt::MatchContains);
-	foreach (QTreeWidgetItem *i, qlItems) {
-		if (i == allMessagesItem) {
+
+    for (const QTreeWidgetItem* i : qlItems)
+    {
+        if (i == allMessagesItem)
 			continue;
-		}
+
 		Log::MsgType mt = static_cast< Log::MsgType >(i->data(ColMessage, Qt::UserRole).toInt());
 
 		int v = 0;
@@ -340,7 +344,9 @@ void LogConfig::on_qtwMessages_itemChanged(QTreeWidgetItem *i, int column) {
 		const QSignalBlocker blocker(qtwMessages);
 		// Select / Unselect all entries of that column
 		QList< QTreeWidgetItem * > qlItems = qtwMessages->findItems(QString(), Qt::MatchContains);
-		foreach (QTreeWidgetItem *item, qlItems) {
+
+        for (QTreeWidgetItem* item : qlItems)
+        {
 			if (item != allMessagesItem) {
 				item->setCheckState(column, allMessagesItem->checkState(column));
 			}

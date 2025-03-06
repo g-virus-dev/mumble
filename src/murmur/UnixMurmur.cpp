@@ -62,8 +62,10 @@ void LimitTest::testLimits(QCoreApplication &a) {
 		if ((count & 1023) == 0)
 			qWarning("%d descriptors...", count);
 	}
-	foreach (QFile *qf, ql)
+
+    for (const QFile* qf : ql)
 		delete qf;
+
 	ql.clear();
 	qCritical("Managed to open %d descriptors", count);
 
@@ -94,12 +96,15 @@ void LimitTest::testLimits(QCoreApplication &a) {
 	qw->wakeAll();
 	qm->unlock();
 
-	foreach (LimitTest *qt, qtl) {
-		if (!qt->wait(1000)) {
+    for (LimitTest* qt : qtl)
+    {
+        if (!qt->wait(1000))
+        {
 			qWarning("Thread %d failed to terminate...", qt->tid);
 			qt->terminate();
 		}
 	}
+
 	qFatal("Managed to spawn %d threads", count);
 }
 
@@ -383,9 +388,12 @@ const QString UnixMurmur::trySystemIniFiles(const QString &fname) {
 	inipaths << QLatin1String("/etc/mumble-server.ini");
 	inipaths << QLatin1String("/etc/murmur.ini");
 
-	foreach (const QString &f, inipaths) {
+    for (const QString& f : inipaths)
+    {
 		QFileInfo fi(f);
-		if (fi.exists() && fi.isReadable()) {
+
+        if (fi.exists() && fi.isReadable())
+        {
 			file = fi.absoluteFilePath();
 			break;
 		}

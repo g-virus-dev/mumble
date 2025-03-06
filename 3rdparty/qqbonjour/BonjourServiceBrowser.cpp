@@ -41,7 +41,8 @@ BonjourServiceBrowser::~BonjourServiceBrowser() {
 	}
 }
 
-void BonjourServiceBrowser::browseForServiceType(const QString &serviceType) {
+void BonjourServiceBrowser::browseForServiceType(const QString& serviceType)
+{
 	DNSServiceErrorType err = DNSServiceBrowse(&dnssref, 0, 0, serviceType.toUtf8().constData(), 0,
 	                          bonjourBrowseReply, this);
 	if (err != kDNSServiceErr_NoError) {

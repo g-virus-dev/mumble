@@ -32,9 +32,10 @@ ConfigDialog::ConfigDialog(QWidget *p) : QDialog(p) {
 
 	s = Global::get().s;
 
-	unsigned int idx = 0;
-	ConfigWidgetNew cwn;
-	foreach (cwn, *ConfigRegistrar::c_qmNew) {
+    unsigned int idx = 0;
+
+    for (ConfigWidgetNew cwn : *ConfigRegistrar::c_qmNew)
+    {
 		ConfigWidget *cw = cwn(s);
 		{
 			QMutexLocker lock(&s_existingWidgetsMutex);
@@ -128,7 +129,7 @@ ConfigDialog::~ConfigDialog() {
 		s_existingWidgets.clear();
 	}
 
-	foreach (QWidget *qw, qhPages)
+    for (QWidget *qw : qhPages)
 		delete qw;
 }
 
@@ -171,7 +172,8 @@ void ConfigDialog::on_pageButtonBox_clicked(QAbstractButton *b) {
 
 			if (msgBox.exec() == QMessageBox::Yes) {
 				Settings defaultSetting;
-				foreach (ConfigWidget *cw, qmWidgets) { cw->load(defaultSetting); }
+                for (ConfigWidget *cw : qmWidgets)
+                    cw->load(defaultSetting);
 			}
 			break;
 		}
@@ -251,7 +253,8 @@ void ConfigDialog::updateListView() {
 	QFontMetrics qfm(qlwIcons->font());
 	int configNavbarWidth = 0;
 
-	foreach (ConfigWidget *cw, qmWidgets) {
+    for (ConfigWidget *cw : qmWidgets)
+    {
 		configNavbarWidth = qMax(configNavbarWidth, qfm.horizontalAdvance(cw->title()));
 
 		QListWidgetItem *i = new QListWidgetItem(qlwIcons);
@@ -276,15 +279,16 @@ void ConfigDialog::updateListView() {
 		qlwIcons->setCurrentRow(0);
 }
 
-void ConfigDialog::apply() {
+void ConfigDialog::apply()
+{
 	Audio::stop();
 
-	foreach (ConfigWidget *cw, qmWidgets)
+    for (ConfigWidget* cw : qmWidgets)
 		cw->save();
 
 	Global::get().s = s;
 
-	foreach (ConfigWidget *cw, qmWidgets)
+    for (ConfigWidget* cw : qmWidgets)
 		cw->accept();
 
 	if (!Global::get().s.bAttenuateOthersOnTalk)

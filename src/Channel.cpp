@@ -40,18 +40,21 @@ Channel::Channel(unsigned int id, const QString &name, QObject *p) : QObject(p) 
 #endif // MUMBLE
 }
 
-Channel::~Channel() {
+Channel::~Channel()
+{
 	if (cParent)
 		cParent->removeChannel(this);
 
-	foreach (Channel *c, qlChannels)
+    for (Channel* c : qlChannels)
 		delete c;
 
-	foreach (ChanACL *acl, qlACL)
+    for (ChanACL* acl : qlACL)
 		delete acl;
-	foreach (Group *g, qhGroups)
+
+    for (Group* g : qhGroups)
 		delete g;
-	foreach (Channel *l, qhLinks.keys())
+
+    for (Channel* l : qhLinks.keys())
 		unlink(l);
 
 	Q_ASSERT(qlChannels.count() == 0);
@@ -191,13 +194,16 @@ void Channel::link(Channel *l) {
 }
 
 void Channel::unlink(Channel *l) {
-	if (l) {
+    if (l)
+    {
 		qsPermLinks.remove(l);
 		qhLinks.remove(l);
 		l->qsPermLinks.remove(this);
 		l->qhLinks.remove(this);
-	} else {
-		foreach (Channel *c, qhLinks.keys())
+    }
+    else
+    {
+        for (Channel* c : qhLinks.keys())
 			unlink(c);
 	}
 }
@@ -213,7 +219,8 @@ QSet< Channel * > Channel::allLinks() {
 
 	while (!stack.isEmpty()) {
 		Channel *lnk = stack.pop();
-		foreach (Channel *l, lnk->qhLinks.keys()) {
+        for (Channel* l : lnk->qhLinks.keys())
+        {
 			if (!seen.contains(l)) {
 				seen.insert(l);
 				stack.push(l);
@@ -229,9 +236,12 @@ QSet< Channel * > Channel::allChildren() {
 		QStack< Channel * > stack;
 		stack.push(this);
 
-		while (!stack.isEmpty()) {
+        while (!stack.isEmpty())
+        {
 			Channel *c = stack.pop();
-			foreach (Channel *chld, c->qlChannels) {
+
+            for (Channel* chld : c->qlChannels)
+            {
 				seen.insert(chld);
 				if (!chld->qlChannels.isEmpty())
 					stack.append(chld);
@@ -288,15 +298,17 @@ size_t Channel::getLevel() const {
 	return i;
 }
 
-size_t Channel::getDepth() const {
-	if (qlChannels.empty()) {
+size_t Channel::getDepth() const
+{
+    if (qlChannels.empty())
 		return 0;
-	}
 
 	size_t result = 0;
-	foreach (Channel *child, qlChannels) { result = qMax(result, child->getDepth() + 1); }
 
-	return result;
+    for (Channel* child : qlChannels)
+        result = qMax(result, child->getDepth() + 1);
+
+    return result;
 }
 
 QString Channel::getPath() const {

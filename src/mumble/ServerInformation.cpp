@@ -16,8 +16,6 @@
 
 #include <QTableWidgetItem>
 
-#include <boost/accumulators/accumulators.hpp>
-
 #include <cmath>
 
 QString ServerInformation::m_unknownStr = tr("Unknown");
@@ -128,10 +126,15 @@ void ServerInformation::updateConnectionDetails() {
 		connection_udp_latencyLabel->show();
 		connection_udp_statisticsGroup->show();
 
+        /*
+         * TODO: Boost is gonna die
 		// Actually fill in data
 		const float latency = static_cast< float >(boost::accumulators::mean(Global::get().sh->accUDP));
-		const float deviation =
-			static_cast< float >(std::sqrt(boost::accumulators::variance(Global::get().sh->accUDP)));
+        const float deviation = static_cast< float >(std::sqrt(boost::accumulators::variance(Global::get().sh->accUDP)));
+        */
+
+        const float latency = 0.0f;
+        const float deviation = 0.0f;
 
 		connection_udp_encryption->setText("128 bit OCB-AES128");
 		connection_udp_latency->setText(latencyString.arg(latency, 0, 'f', 1).arg(deviation, 0, 'f', 1));
@@ -140,9 +143,10 @@ void ServerInformation::updateConnectionDetails() {
 	}
 
 
-	// TCP
-	const float latency   = static_cast< float >(boost::accumulators::mean(Global::get().sh->accTCP));
-	const float deviation = static_cast< float >(std::sqrt(boost::accumulators::variance(Global::get().sh->accTCP)));
+    // TCP
+
+    const float latency   = 0.0f; //static_cast< float >(boost::accumulators::mean(Global::get().sh->accTCP));
+    const float deviation = 0.0f; //static_cast< float >(std::sqrt(boost::accumulators::variance(Global::get().sh->accTCP)));
 
 	QSslCipher cipher = Global::get().sh->qscCipher;
 
@@ -151,7 +155,6 @@ void ServerInformation::updateConnectionDetails() {
 	connection_tcp_cipher->setText(cipher.name().isEmpty() ? m_unknownStr : cipher.name());
 	connection_tcp_forwardSecrecy->setText(Global::get().sh->connectionUsesPerfectForwardSecrecy ? tr("Yes")
 																								 : tr("No"));
-
 	qgbTCPParameters->updateAccessibleText();
 }
 

@@ -13,14 +13,20 @@
 #include <QtWidgets/QListWidget>
 #include <QtWidgets/QVBoxLayout>
 
-static QStringList processQSslCertificateInfo(QStringList in) {
+static QStringList processQSslCertificateInfo(QStringList in)
+{
 	QStringList list;
-	foreach (QString str, in) { list << Mumble::QtUtils::decode_utf8_qssl_string(str); }
-	return list;
+
+    for (const QString& str : in)
+        list << Mumble::QtUtils::decode_utf8_qssl_string(str);
+
+    return list;
 }
 
-static void addQSslCertificateInfo(QStringList &l, const QString &label, const QStringList &items) {
-	foreach (const QString &item, items) { l << QString(QLatin1String("%1: %2")).arg(label, item); }
+static void addQSslCertificateInfo(QStringList &l, const QString &label, const QStringList &items)
+{
+    for (const QString& item : items)
+        l << QString(QLatin1String("%1: %2")).arg(label, item);
 }
 
 static QString certificateFriendlyName(const QSslCertificate &cert) {
@@ -55,13 +61,17 @@ ViewCert::ViewCert(QList< QSslCertificate > cl, QWidget *p) : QDialog(p) {
 	qlwChain->setObjectName(QLatin1String("Chain"));
 
 	// load certs into a set as a hacky fix to #2141
-	QSet< QSslCertificate > qlCertSet;
-	foreach (QSslCertificate c, qlCerts) {
-		if (!qlCertSet.contains(c)) {
+    QSet<QSslCertificate> qlCertSet;
+
+    for (const QSslCertificate& c : qlCerts)
+    {
+        if (!qlCertSet.contains(c))
+        {
 			qlwChain->addItem(certificateFriendlyName(c));
 			qlCertSet << c;
 		}
 	}
+
 	h->addWidget(qlwChain);
 
 	qcbDetails = new QGroupBox(tr("Certificate details"), this);

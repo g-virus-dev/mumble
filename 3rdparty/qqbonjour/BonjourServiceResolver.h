@@ -33,42 +33,47 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <QtCore/QMap>
 #include <QtCore/QObject>
-
 #include <dns_sd.h>
-
 #include "BonjourRecord.h"
 
 class QSocketNotifier;
 
-class BonjourServiceResolver : public QObject {
-		Q_OBJECT
-	protected:
-		struct ResolveRecord {
-			BonjourRecord record;
-			BonjourServiceResolver *bsr;
-			DNSServiceRef dnssref;
-			QSocketNotifier *bonjourSocket;
-			int bonjourPort;
-			ResolveRecord(const BonjourRecord &, BonjourServiceResolver *);
-			~ResolveRecord();
-		};
+class BonjourServiceResolver : public QObject
+{
+    Q_OBJECT
+public:
+    BonjourServiceResolver(QObject *parent);
+    ~BonjourServiceResolver();
 
-		QMap<int, ResolveRecord *> qmResolvers;
-	public:
-		BonjourServiceResolver(QObject *parent);
-		~BonjourServiceResolver();
+    void resolveBonjourRecord(const BonjourRecord &record);
 
-		void resolveBonjourRecord(const BonjourRecord &record);
-	signals:
-		void bonjourRecordResolved(BonjourRecord record, QString hostname, int port);
-		void error(BonjourRecord record, DNSServiceErrorType error);
-	private slots:
-		void bonjourSocketReadyRead(int);
-	private:
-		static void DNSSD_API bonjourResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
-		        quint32 interfaceIndex, DNSServiceErrorType errorCode,
-		        const char *fullName, const char *hosttarget, quint16 port,
-		        quint16 txtLen, const unsigned char *txtRecord, void *context);
+signals:
+    void bonjourRecordResolved(BonjourRecord record, QString hostname, int port);
+    void error(BonjourRecord record, DNSServiceErrorType error);
+
+protected:
+    struct ResolveRecord
+    {
+        ResolveRecord(const BonjourRecord&, BonjourServiceResolver*);
+        ~ResolveRecord();
+
+        BonjourRecord record;
+        BonjourServiceResolver* bsr;
+        DNSServiceRef dnssref;
+        QSocketNotifier* bonjourSocket;
+        int bonjourPort;
+    };
+
+    QMap<int, ResolveRecord*> m_qmResolvers;
+
+private slots:
+    void bonjourSocketReadyRead(int);
+
+private:
+    static void DNSSD_API bonjourResolveReply(DNSServiceRef sdRef, DNSServiceFlags flags,
+                                              quint32 interfaceIndex, DNSServiceErrorType errorCode,
+                                              const char* fullName, const char* hosttarget, quint16 port,
+                                              quint16 txtLen, const unsigned char* txtRecord, void* context);
 };
 
 #endif

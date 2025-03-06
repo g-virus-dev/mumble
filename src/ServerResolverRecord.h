@@ -11,15 +11,16 @@
 
 #include "Net.h" // for HostAddress
 
-class ServerResolverRecord {
+class ServerResolverRecord
+{
 public:
 	ServerResolverRecord();
 	ServerResolverRecord(QString hostname_, quint16 port_, qint64 priority_, QList< HostAddress > addresses_);
 
-	QString hostname();
-	quint16 port();
-	qint64 priority();
-	QList< HostAddress > addresses();
+    const QString& hostname() const;
+    quint16 port() const;
+    qint64 priority() const;
+    const QList<HostAddress>& addresses() const;
 
 protected:
 	QString m_hostname;

@@ -28,29 +28,38 @@ ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 #include "BonjourServiceResolver.h"
-
 #include <QtCore/QSocketNotifier>
 #include <QtCore/QtEndian>
 
-BonjourServiceResolver::ResolveRecord::ResolveRecord(const BonjourRecord &r, BonjourServiceResolver *p) : record(r), bsr(p), dnssref(NULL), bonjourSocket(NULL), bonjourPort(-1) {
-}
+BonjourServiceResolver::ResolveRecord::ResolveRecord(const BonjourRecord &r, BonjourServiceResolver *p)
+    : record(r),
+      bsr(p),
+      dnssref(NULL),
+      bonjourSocket(NULL),
+      bonjourPort(-1)
+{}
 
-BonjourServiceResolver::ResolveRecord::~ResolveRecord() {
+BonjourServiceResolver::ResolveRecord::~ResolveRecord()
+{
 	delete bonjourSocket;
+
 	if (dnssref)
 		DNSServiceRefDeallocate(dnssref);
 }
 
-BonjourServiceResolver::BonjourServiceResolver(QObject *p) : QObject(p) {
-}
+BonjourServiceResolver::BonjourServiceResolver(QObject *p)
+    : QObject(p)
+{}
 
-BonjourServiceResolver::~BonjourServiceResolver() {
-	foreach(ResolveRecord *rr, qmResolvers)
+BonjourServiceResolver::~BonjourServiceResolver()
+{
+    for(ResolveRecord* rr : m_qmResolvers)
 		delete rr;
 }
 
-void BonjourServiceResolver::resolveBonjourRecord(const BonjourRecord &record) {
-	ResolveRecord *rr = new ResolveRecord(record, this);
+void BonjourServiceResolver::resolveBonjourRecord(const BonjourRecord &record)
+{
+    ResolveRecord* rr = new ResolveRecord(record, this);
 
 	DNSServiceErrorType err = DNSServiceResolve(& rr->dnssref, 0, 0,
 	                          record.serviceName.toUtf8().constData(),
@@ -58,14 +67,19 @@ void BonjourServiceResolver::resolveBonjourRecord(const BonjourRecord &record) {
 	                          record.replyDomain.toUtf8().constData(),
 	                          static_cast<DNSServiceResolveReply>(bonjourResolveReply), rr);
 
-	if (err == kDNSServiceErr_NoError) {
+    if (err == kDNSServiceErr_NoError)
+    {
 		int sockfd = DNSServiceRefSockFD(rr->dnssref);
-		if (sockfd == -1) {
+
+        if (sockfd == -1)
+        {
 			err = kDNSServiceErr_Invalid;
-		} else {
+        }
+        else
+        {
 			rr->bonjourSocket = new QSocketNotifier(sockfd, QSocketNotifier::Read, this);
 			connect(rr->bonjourSocket, SIGNAL(activated(int)), this, SLOT(bonjourSocketReadyRead(int)));
-			qmResolvers.insert(sockfd, rr);
+            m_qmResolvers.insert(sockfd, rr);
 			return;
 		}
 	}
@@ -74,34 +88,42 @@ void BonjourServiceResolver::resolveBonjourRecord(const BonjourRecord &record) {
 	delete rr;
 }
 
-void BonjourServiceResolver::bonjourSocketReadyRead(int sockfd) {
-	ResolveRecord *rr = qmResolvers.value(sockfd);
+void BonjourServiceResolver::bonjourSocketReadyRead(int sockfd)
+{
+    ResolveRecord *rr = m_qmResolvers.value(sockfd);
 
 	if (! rr)
 		return;
 
 	DNSServiceErrorType err = DNSServiceProcessResult(rr->dnssref);
-	if (err != kDNSServiceErr_NoError) {
+
+    if (err != kDNSServiceErr_NoError)
+    {
 		emit error(rr->record, err);
-		qmResolvers.remove(DNSServiceRefSockFD(rr->dnssref));
+        m_qmResolvers.remove(DNSServiceRefSockFD(rr->dnssref));
 		delete rr;
 	}
 }
 
-
 void BonjourServiceResolver::bonjourResolveReply(DNSServiceRef, DNSServiceFlags ,
-        quint32 , DNSServiceErrorType errorCode,
-        const char *, const char *hosttarget, quint16 port,
-        quint16 , const unsigned char *, void *context) {
+                                                 quint32 , DNSServiceErrorType errorCode,
+                                                 const char *, const char *hosttarget, quint16 port,
+                                                 quint16 , const unsigned char *, void *context)
+{
 	ResolveRecord *rr = static_cast<ResolveRecord *>(context);
-	rr->bsr->qmResolvers.remove(DNSServiceRefSockFD(rr->dnssref));
 
-	if (errorCode != kDNSServiceErr_NoError) {
+    rr->bsr->m_qmResolvers.remove(DNSServiceRefSockFD(rr->dnssref));
+
+    if (errorCode != kDNSServiceErr_NoError)
+    {
 		emit rr->bsr->error(rr->record, errorCode);
 		delete rr;
 		return;
 	}
+
 	rr->bonjourPort = qFromBigEndian<quint16>(port);
+
 	emit rr->bsr->bonjourRecordResolved(rr->record, QString::fromUtf8(hosttarget), rr->bonjourPort);
+
 	delete rr;
 }

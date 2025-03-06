@@ -53,9 +53,12 @@ AudioInputDialog::AudioInputDialog(Settings &st) : ConfigWidget(st) {
 
 	qlInputHelp->setVisible(false);
 
-	if (AudioInputRegistrar::qmNew) {
+    if (AudioInputRegistrar::qmNew)
+    {
 		QList< QString > keys = AudioInputRegistrar::qmNew->keys();
-		foreach (QString key, keys) { qcbSystem->addItem(key); }
+
+        for (const QString& key : keys)
+            qcbSystem->addItem(key);
 	}
 	qcbSystem->setEnabled(qcbSystem->count() > 1);
 
@@ -633,10 +636,14 @@ void AudioOutputDialog::enablePulseAudioAttenuationOptionsFor(const QString &out
 AudioOutputDialog::AudioOutputDialog(Settings &st) : ConfigWidget(st) {
 	setupUi(this);
 
-	if (AudioOutputRegistrar::qmNew) {
+    if (AudioOutputRegistrar::qmNew)
+    {
 		QList< QString > keys = AudioOutputRegistrar::qmNew->keys();
-		foreach (QString key, keys) { qcbSystem->addItem(key); }
+
+        for (const QString& key : keys)
+            qcbSystem->addItem(key);
 	}
+
 	qcbSystem->setEnabled(qcbSystem->count() > 1);
 
 	qcbLoopback->addItem(tr("None"), Settings::None);

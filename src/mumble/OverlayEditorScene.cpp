@@ -272,23 +272,22 @@ void OverlayEditorScene::drawBackground(QPainter *p, const QRectF &rect) {
 	}
 }
 
-QGraphicsPixmapItem *OverlayEditorScene::childAt(const QPointF &pos) {
+QGraphicsPixmapItem *OverlayEditorScene::childAt(const QPointF &pos)
+{
 	QGraphicsItem *item = nullptr;
 
-	if (qgriSelected->isVisible()) {
-		if (qgriSelected->rect().contains(pos)) {
-			return qgpiSelected;
-		}
-	}
+    if (qgriSelected->isVisible() && qgriSelected->rect().contains(pos))
+        return qgpiSelected;
 
-	foreach (QGraphicsItem *qgi, items(Qt::AscendingOrder)) {
+    for (QGraphicsItem* qgi : items(Qt::AscendingOrder))
+    {
 		if (!qgi->isVisible() || !qgraphicsitem_cast< QGraphicsPixmapItem * >(qgi))
 			continue;
 
 		QPointF qp = pos - qgi->pos();
-		if (qgi->contains(qp)) {
-			item = qgi;
-		}
+
+        if (qgi->contains(qp))
+            item = qgi;
 	}
 	return static_cast< QGraphicsPixmapItem * >(item);
 }
@@ -513,17 +512,23 @@ void OverlayEditorScene::updateCursorShape(const QPointF &point) {
 			break;
 	}
 
-
-	foreach (QGraphicsView *v, views()) {
-		if (v->viewport()->cursor().shape() != cs) {
+    for (const QGraphicsView* v : views())
+    {
+        if (v->viewport()->cursor().shape() != cs)
+        {
 			v->viewport()->setCursor(cs);
 
 			// But an embedded, injected GraphicsView doesn't propagage mouse cursors...
 			QWidget *p = v->parentWidget();
-			if (p) {
+
+            if (p)
+            {
 				QGraphicsProxyWidget *qgpw = p->graphicsProxyWidget();
-				if (qgpw) {
+
+                if (qgpw)
+                {
 					qgpw->setCursor(cs);
+
 					if (Global::get().ocIntercept)
 						Global::get().ocIntercept->updateMouse();
 				}

@@ -207,20 +207,22 @@ bool AudioWizard::eventFilter(QObject *obj, QEvent *evt) {
 	return QWizard::eventFilter(obj, evt);
 }
 
-void AudioWizard::on_qcbInput_activated(int) {
+void AudioWizard::on_qcbInput_activated(int)
+{
 	qcbInputDevice->clear();
 
 	if (!AudioInputRegistrar::qmNew)
 		return;
 
-	AudioInputRegistrar *air = AudioInputRegistrar::qmNew->value(qcbInput->currentText());
-	QList< audioDevice > ql  = air->getDeviceChoices();
+    AudioInputRegistrar* air = AudioInputRegistrar::qmNew->value(qcbInput->currentText());
+    QList<audioDevice> ql  = air->getDeviceChoices();
 
-	foreach (audioDevice d, ql) { qcbInputDevice->addItem(d.first, d.second); }
+    for (const audioDevice& d : ql)
+        qcbInputDevice->addItem(d.first, d.second);
 
-	qcbInputDevice->setEnabled(ql.count() > 1);
+    qcbInputDevice->setEnabled(ql.count() > 1);
 
-	on_qcbInputDevice_activated(0);
+    on_qcbInputDevice_activated(0);
 }
 
 void AudioWizard::on_qcbInputDevice_activated(int) {
@@ -244,20 +246,22 @@ void AudioWizard::on_qcbInputDevice_activated(int) {
 	Global::get().ai->start(QThread::HighestPriority);
 }
 
-void AudioWizard::on_qcbOutput_activated(int) {
+void AudioWizard::on_qcbOutput_activated(int)
+{
 	qcbOutputDevice->clear();
 
 	if (!AudioOutputRegistrar::qmNew)
 		return;
 
-	AudioOutputRegistrar *aor = AudioOutputRegistrar::qmNew->value(qcbOutput->currentText());
-	QList< audioDevice > ql   = aor->getDeviceChoices();
+    AudioOutputRegistrar* aor = AudioOutputRegistrar::qmNew->value(qcbOutput->currentText());
+    QList<audioDevice> ql = aor->getDeviceChoices();
 
-	foreach (audioDevice d, ql) { qcbOutputDevice->addItem(d.first, d.second); }
+    for (const audioDevice& d : ql)
+        qcbOutputDevice->addItem(d.first, d.second);
 
-	qcbAttenuateOthers->setEnabled(aor->canMuteOthers());
+    qcbAttenuateOthers->setEnabled(aor->canMuteOthers());
 
-	qcbOutputDevice->setEnabled(ql.count() > 1);
+    qcbOutputDevice->setEnabled(ql.count() > 1);
 
 	on_qcbOutputDevice_activated(0);
 }

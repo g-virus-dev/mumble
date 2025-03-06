@@ -65,7 +65,7 @@ public:
 	static ClientUser *get(unsigned int);
 	static bool isValid(unsigned int);
 	static ClientUser *add(unsigned int, QObject *p = nullptr);
-	static ClientUser *match(const ClientUser *p, bool matchname = false);
+    static const ClientUser* match(const ClientUser* p, bool matchname = false);
 	static void remove(unsigned int);
 	static void remove(ClientUser *);
 

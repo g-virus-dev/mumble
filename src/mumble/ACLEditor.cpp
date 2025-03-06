@@ -173,8 +173,10 @@ ACLEditor::ACLEditor(unsigned int channelid, const MumbleProto::ACL &mea, QWidge
 	qcbACLUser->installEventFilter(keyEventObserver);
 	connect(keyEventObserver, &KeyEventObserver::keyEventObserved, this, &ACLEditor::qcbACLUser_spacePressed);
 
-	foreach (User *u, ClientUser::c_qmUsers) {
-		if (u->iId >= 0) {
+    for (const User* u : ClientUser::c_qmUsers)
+    {
+        if (u->iId >= 0)
+        {
 			qhNameCache.insert(u->iId, u->qsName);
 			qhIDCache.insert(u->qsName.toLower(), u->iId);
 		}
@@ -235,10 +237,9 @@ ACLEditor::ACLEditor(unsigned int channelid, const MumbleProto::ACL &mea, QWidge
 	bInheritACL = mea.inherit_acls();
 	qcbACLInherit->setChecked(bInheritACL);
 
-	foreach (ChanACL *acl, qlACLs) {
+    for (ChanACL *acl : qlACLs)
 		if (acl->bInherited)
 			numInheritACL++;
-	}
 
 	refill(GroupAdd);
 	refill(GroupRemove);
@@ -255,9 +256,13 @@ ACLEditor::ACLEditor(unsigned int channelid, const MumbleProto::ACL &mea, QWidge
 	adjustSize();
 }
 
-ACLEditor::~ACLEditor() {
-	foreach (ChanACL *acl, qlACLs) { delete acl; }
-	foreach (ACLGroup *gp, qlGroups) { delete gp; }
+ACLEditor::~ACLEditor()
+{
+    for (ChanACL *acl : qlACLs)
+        delete acl;
+
+    for (ACLGroup *gp : qlGroups)
+        delete gp;
 }
 
 void ACLEditor::showEvent(QShowEvent *evt) {
@@ -321,7 +326,8 @@ void ACLEditor::accept() {
 		msg.clear_acls();
 		msg.clear_groups();
 
-		foreach (ChanACL *acl, qlACLs) {
+        for (ChanACL *acl : qlACLs)
+        {
 			if (acl->bInherited || (acl->iUserId < -1))
 				continue;
 			MumbleProto::ACL_ChanACL *mpa = msg.add_acls();
@@ -335,18 +341,22 @@ void ACLEditor::accept() {
 			mpa->set_deny(acl->pDeny);
 		}
 
-		foreach (ACLGroup *gp, qlGroups) {
-			if (gp->bInherited && gp->bInherit && gp->bInheritable && (gp->qsAdd.count() == 0)
-				&& (gp->qsRemove.count() == 0))
+        for (ACLGroup *gp : qlGroups)
+        {
+            if (gp->bInherited && gp->bInherit && gp->bInheritable &&
+                (gp->qsAdd.count() == 0)	&& (gp->qsRemove.count() == 0))
 				continue;
+
 			MumbleProto::ACL_ChanGroup *mpg = msg.add_groups();
 			mpg->set_name(u8(gp->qsName));
 			mpg->set_inherit(gp->bInherit);
 			mpg->set_inheritable(gp->bInheritable);
-			foreach (int pid, gp->qsAdd)
+
+            for (int pid : gp->qsAdd)
 				if (pid >= 0)
 					mpg->add_add(static_cast< unsigned int >(pid));
-			foreach (int pid, gp->qsRemove)
+
+            for (int pid : gp->qsRemove)
 				if (pid >= 0)
 					mpg->add_remove(static_cast< unsigned int >(pid));
 		}
@@ -395,15 +405,18 @@ void ACLEditor::returnQuery(const MumbleProto::QueryUsers &mqu) {
 		if (qhNameWait.contains(lname)) {
 			int tid = qhNameWait.take(lname);
 
-			foreach (ChanACL *acl, qlACLs)
+            for (ChanACL *acl : qlACLs)
 				if (acl->iUserId == tid)
 					acl->iUserId = pid;
-			foreach (ACLGroup *gp, qlGroups) {
+
+            for (ACLGroup *gp : qlGroups)
+            {
 				if (gp->qsAdd.remove(tid))
 					gp->qsAdd.insert(pid);
 				if (gp->qsRemove.remove(tid))
 					gp->qsRemove.insert(pid);
 			}
+
 			qhNameCache.remove(tid);
 		}
 	}
@@ -440,7 +453,8 @@ void ACLEditor::refillComboBoxes() {
 	QStringList names = qhNameCache.values();
 	names.sort();
 
-	foreach (QComboBox *qcb, ql) {
+    for (QComboBox *qcb : ql)
+    {
 		qcb->clear();
 		qcb->addItems(names);
 		qcb->clearEditText();
@@ -456,7 +470,8 @@ void ACLEditor::refillACL() {
 
 	bool first = true;
 
-	foreach (ChanACL *acl, qlACLs) {
+    for (ChanACL *acl : qlACLs)
+    {
 		if (first)
 			first = false;
 		else if (!bInheritACL && acl->bInherited)
@@ -481,31 +496,33 @@ void ACLEditor::refillACL() {
 	qlwACLs->setCurrentRow(idx);
 }
 
-void ACLEditor::refillGroupNames() {
+void ACLEditor::refillGroupNames()
+{
 	QString text = qcbGroupList->currentText().toLower();
 	QStringList qsl;
 
-	foreach (ACLGroup *gp, qlGroups) { qsl << gp->qsName; }
+    for (ACLGroup *gp : qlGroups) { qsl << gp->qsName; }
 	qsl.sort();
 
 	qcbGroupList->clear();
 
-	foreach (QString name, qsl) { qcbGroupList->addItem(name); }
+    for (const QString& name : qsl)
+        qcbGroupList->addItem(name);
 
-	int wantindex = qcbGroupList->findText(text, Qt::MatchFixedString);
-	qcbGroupList->setCurrentIndex(wantindex);
+    int wantindex = qcbGroupList->findText(text, Qt::MatchFixedString);
+    qcbGroupList->setCurrentIndex(wantindex);
 }
 
 ACLGroup *ACLEditor::currentGroup() {
 	QString group = qcbGroupList->currentText();
 
-	foreach (ACLGroup *gp, qlGroups)
+    for (ACLGroup *gp : qlGroups)
 		if (gp->qsName == group)
 			return gp;
 
 	group = group.toLower();
 
-	foreach (ACLGroup *gp, qlGroups)
+    for (ACLGroup *gp : qlGroups)
 		if (gp->qsName == group)
 			return gp;
 
@@ -526,9 +543,10 @@ void ACLEditor::fillWidgetFromSet(QListWidget *qlw, const QSet< int > &qs) {
 	qlw->clear();
 
 	QList< idname > ql;
-	foreach (int pid, qs) { ql << idname(userName(pid), pid); }
+    for (int pid : qs) { ql << idname(userName(pid), pid); }
 	std::stable_sort(ql.begin(), ql.end());
-	foreach (idname i, ql) {
+    for (idname i : ql)
+    {
 		QListWidgetItem *qlwi = new QListWidgetItem(i.first, qlw);
 		qlwi->setData(Qt::UserRole, i.second);
 		if (i.second < 0) {
@@ -643,7 +661,7 @@ void ACLEditor::ACLEnableCheck() {
 		qcbACLGroup->addItem(QLatin1String("~sub"));
 		qcbACLGroup->addItem(QLatin1String("~out"));
 
-		foreach (ACLGroup *gs, qlGroups)
+        for (const ACLGroup *gs : qlGroups)
 			qcbACLGroup->addItem(gs->qsName);
 
 		if (as->iUserId == -1) {
@@ -665,7 +683,7 @@ void ACLEditor::ACLEnableCheck() {
 			qcbACLUser->setEditText(userName(as->iUserId));
 		}
 	}
-	foreach (QAbstractButton *b, qdbbButtons->buttons()) {
+    for (QAbstractButton *b : qdbbButtons->buttons()) {
 		QPushButton *qpb = qobject_cast< QPushButton * >(b);
 		if (qpb) {
 			qpb->setAutoDefault(false);
@@ -688,7 +706,7 @@ void ACLEditor::on_qtwTab_currentChanged(int index) {
 void ACLEditor::updatePasswordField() {
 	// Search for an ACL that represents the current password
 	pcaPassword = nullptr;
-	foreach (ChanACL *acl, qlACLs) {
+    for (ChanACL *acl : qlACLs) {
 		if (acl->isPassword()) {
 			pcaPassword = acl;
 		}
@@ -707,7 +725,7 @@ void ACLEditor::updatePasswordACL() {
 
 			// Search and remove the @all deny ACL
 			ChanACL *denyall = nullptr;
-			foreach (ChanACL *acl, qlACLs) {
+            for (ChanACL *acl : qlACLs) {
 				if (acl->qsGroup == QLatin1String("all") && acl->bInherited == false && acl->bApplyHere == true
 					&& acl->pAllow == ChanACL::None
 					&& (acl->pDeny

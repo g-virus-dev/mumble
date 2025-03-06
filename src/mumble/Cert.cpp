@@ -406,11 +406,14 @@ void CertWizard::on_qlIntroText_linkActivated(const QString &url) {
 	QDesktopServices::openUrl(QUrl(url));
 }
 
-bool CertWizard::validateCert(const Settings::KeyPair &kp) {
-	bool valid = !kp.second.isNull() && !kp.first.isEmpty();
-	foreach (const QSslCertificate &cert, kp.first)
-		valid = valid && !cert.isNull();
-	return valid;
+bool CertWizard::validateCert(const Settings::KeyPair &kp)
+{
+    bool valid = !kp.second.isNull() && !kp.first.isEmpty();
+
+    for (const QSslCertificate& cert:  kp.first)
+        valid = valid && !cert.isNull();
+
+    return valid;
 }
 
 Settings::KeyPair CertWizard::generateNewCert(QString qsname, const QString &qsemail) {
@@ -479,8 +482,10 @@ Settings::KeyPair CertWizard::importCert(QByteArray data, const QString &pw) {
 				}
 			}
 			bool valid = !qskKey.isNull();
-			foreach (const QSslCertificate &cert, qlCerts)
+
+            for (const QSslCertificate& cert : qlCerts)
 				valid = valid && !cert.isNull();
+
 			if (valid)
 				kp = Settings::KeyPair(qlCerts, qskKey);
 		}
@@ -533,7 +538,8 @@ QByteArray CertWizard::exportCert(const Settings::KeyPair &kp) {
 			QList< QSslCertificate > qlCerts = kp.first;
 			qlCerts.removeFirst();
 
-			foreach (const QSslCertificate &cert, qlCerts) {
+            for (const QSslCertificate& cert : qlCerts)
+            {
 				X509 *c = nullptr;
 				crt     = cert.toDer();
 				p       = reinterpret_cast< const unsigned char * >(crt.constData());

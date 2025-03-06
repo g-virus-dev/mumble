@@ -191,26 +191,35 @@ const char Global::ccHappyEaster[] = {
 
 QMultiMap< int, DeferInit * > *DeferInit::qmDeferers = nullptr;
 
-void DeferInit::add(int priority) {
-	if (!qmDeferers) {
+void DeferInit::add(int priority)
+{
+    if (!qmDeferers)
 		qmDeferers = new QMultiMap< int, DeferInit * >();
-	}
+
 	qmDeferers->insert(priority, this);
 }
 
-DeferInit::~DeferInit() {
-}
+DeferInit::~DeferInit()
+{}
 
-void DeferInit::run_initializers() {
+void DeferInit::run_initializers()
+{
 	if (!qmDeferers)
 		return;
-	foreach (DeferInit *d, *qmDeferers) { d->initialize(); }
+
+    for (DeferInit* d : *qmDeferers)
+        d->initialize();
 }
 
-void DeferInit::run_destroyers() {
+void DeferInit::run_destroyers()
+{
 	if (!qmDeferers)
 		return;
-	foreach (DeferInit *d, *qmDeferers) { d->destroy(); }
-	delete qmDeferers;
+
+    for (DeferInit* d : *qmDeferers)
+        d->destroy();
+
+    delete qmDeferers;
+
 	qmDeferers = nullptr;
 }

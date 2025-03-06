@@ -175,7 +175,8 @@ void OverlayGroup::paint(QPainter *, const QStyleOptionGraphicsItem *, QWidget *
 
 QRectF OverlayGroup::boundingRect() const {
 	QRectF qr;
-	foreach (const QGraphicsItem *item, childItems())
+
+    for (const QGraphicsItem *item : childItems())
 		if (item->isVisible())
 			qr |= item->boundingRect().translated(item->pos());
 
@@ -199,13 +200,13 @@ Overlay::~Overlay() {
 	}
 
 	// Need to be deleted first, since destructor references lingering QLocalSockets
-	foreach (OverlayClient *oc, qlClients) {
+    for (OverlayClient* oc : qlClients)
+    {
 		// As we're the one closing the connection, we do not need to be
 		// notified of disconnects. This is important because on disconnect we
 		// also remove (and 'delete') the overlay client.
 		disconnect(oc->qlsSocket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-		disconnect(oc->qlsSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), this,
-				   SLOT(error(QLocalSocket::LocalSocketError)));
+        disconnect(oc->qlsSocket, SIGNAL(error(QLocalSocket::LocalSocketError)), this, SLOT(error(QLocalSocket::LocalSocketError)));
 		delete oc;
 	}
 }
@@ -285,10 +286,14 @@ void Overlay::newConnection() {
 	}
 }
 
-void Overlay::disconnected() {
+void Overlay::disconnected()
+{
 	QLocalSocket *qls = qobject_cast< QLocalSocket * >(sender());
-	foreach (OverlayClient *oc, qlClients) {
-		if (oc->qlsSocket == qls) {
+
+    for (OverlayClient* oc : qlClients)
+    {
+        if (oc->qlsSocket == qls)
+        {
 			qlClients.removeAll(oc);
 			delete oc;
 			return;
@@ -304,12 +309,18 @@ bool Overlay::isActive() const {
 	return !qlClients.isEmpty();
 }
 
-void Overlay::toggleShow() {
-	if (Global::get().ocIntercept) {
+void Overlay::toggleShow()
+{
+    if (Global::get().ocIntercept)
+    {
 		Global::get().ocIntercept->hideGui();
-	} else {
-		foreach (OverlayClient *oc, qlClients) {
-			if (oc->uiPid) {
+    }
+    else
+    {
+        for (OverlayClient* oc : qlClients)
+        {
+            if (oc->uiPid)
+            {
 #if defined(Q_OS_WIN)
 				HWND hwnd = GetForegroundWindow();
 				DWORD pid = 0;
@@ -332,10 +343,12 @@ void Overlay::toggleShow() {
 	}
 }
 
-void Overlay::forceSettings() {
-	foreach (OverlayClient *oc, qlClients) { oc->reset(); }
+void Overlay::forceSettings()
+{
+    for (OverlayClient* oc : qlClients)
+        oc->reset();
 
-	updateOverlay();
+    updateOverlay();
 }
 
 void Overlay::verifyTexture(ClientUser *cp, bool allowupdate) {
@@ -459,7 +472,8 @@ void Overlay::updateOverlay() {
 
 	qsQuery.clear();
 
-	foreach (OverlayClient *oc, qlClients) {
+    for (OverlayClient* oc : qlClients)
+    {
 		if (!oc->update()) {
 			qWarning() << "Overlay: Dead client detected. PID" << oc->uiPid << oc->qsExecutablePath;
 			qlClients.removeAll(oc);
@@ -468,12 +482,16 @@ void Overlay::updateOverlay() {
 		}
 	}
 
-	if (!qsQuery.isEmpty()) {
-		MumbleProto::RequestBlob mprb;
-		foreach (unsigned int session, qsQuery) {
+    if (!qsQuery.isEmpty())
+    {
+        MumbleProto::RequestBlob mprb;
+
+        for (unsigned int session : qsQuery)
+        {
 			qsQueried.insert(session);
 			mprb.add_session_texture(session);
 		}
+
 		Global::get().sh->sendMessage(mprb);
 	}
 }
