@@ -43,7 +43,7 @@ protected:
 	bool bInheritACL;
 	QList< ChanACL * > qlACLs;
 	QList< ACLGroup * > qlGroups;
-	ChanACL *pcaPassword;
+    ChanACL *pcaPassword;
 
 	int numInheritACL;
 	unsigned int iChannel;

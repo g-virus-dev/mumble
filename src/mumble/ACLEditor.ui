@@ -20,7 +20,7 @@
       <string>Maximum Users</string>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>3</number>
      </property>
      <widget class="QWidget" name="qwChannel">
       <property name="accessibleName">
@@ -31,7 +31,7 @@
       </attribute>
       <layout class="QFormLayout" name="formLayout">
        <property name="fieldGrowthPolicy">
-        <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+        <enum>QFormLayout::FieldGrowthPolicy::AllNonFixedFieldsGrow</enum>
        </property>
        <item row="6" column="0">
         <widget class="QLabel" name="qlChannelPassword">
@@ -314,9 +314,16 @@ Add a new group.</string>
            </widget>
           </item>
           <item>
+           <widget class="QToolButton" name="qtbGroupIcon">
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <spacer name="horizontalSpacer">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -385,10 +392,10 @@ This list contains all members that were added to the group by the current chann
                 <bool>true</bool>
                </property>
                <property name="insertPolicy">
-                <enum>QComboBox::NoInsert</enum>
+                <enum>QComboBox::InsertPolicy::NoInsert</enum>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                </property>
               </widget>
              </item>
@@ -469,10 +476,10 @@ Contains a list of members whose group membership will not be inherited from the
                 <bool>true</bool>
                </property>
                <property name="insertPolicy">
-                <enum>QComboBox::NoInsert</enum>
+                <enum>QComboBox::InsertPolicy::NoInsert</enum>
                </property>
                <property name="sizeAdjustPolicy">
-                <enum>QComboBox::AdjustToContents</enum>
+                <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
                </property>
               </widget>
              </item>
@@ -785,7 +792,7 @@ Contains the list of members inherited by the current channel. Uncheck &lt;i&gt;
                <bool>true</bool>
               </property>
               <property name="sizeAdjustPolicy">
-               <enum>QComboBox::AdjustToContents</enum>
+               <enum>QComboBox::SizeAdjustPolicy::AdjustToContents</enum>
               </property>
              </widget>
             </item>
@@ -806,15 +813,63 @@ Contains the list of members inherited by the current channel. Uncheck &lt;i&gt;
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="qwIcons">
+      <attribute name="title">
+       <string>Icons</string>
+      </attribute>
+      <layout class="QGridLayout" name="_2">
+       <item row="1" column="1">
+        <widget class="QPushButton" name="qpbRemoveIcons">
+         <property name="text">
+          <string>Remove</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="2">
+        <widget class="QPushButton" name="qpbDiscardIcons">
+         <property name="text">
+          <string>Discard</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <widget class="QPushButton" name="qpbSaveIcons">
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="3">
+        <spacer name="spacer">
+         <property name="orientation">
+          <enum>Qt::Orientation::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="0" colspan="4">
+        <widget class="QGroupBox" name="qgbServerIcons">
+         <property name="title">
+          <string>Server icons</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item>
     <widget class="QDialogButtonBox" name="qdbbButtons">
      <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+      <enum>Qt::Orientation::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::StandardButton::Cancel|QDialogButtonBox::StandardButton::Ok</set>
      </property>
     </widget>
    </item>

@@ -14,6 +14,7 @@
 #include "ServerHandler.h"
 #include "User.h"
 #include "widgets/EventFilters.h"
+#include "widgets/ServerIcons.h"
 
 #include <QtWidgets/QMessageBox>
 
@@ -240,6 +241,12 @@ ACLEditor::ACLEditor(unsigned int channelid, const MumbleProto::ACL &mea, QWidge
     for (ChanACL *acl : qlACLs)
 		if (acl->bInherited)
 			numInheritACL++;
+
+    QHBoxLayout* iconsLayout = new QHBoxLayout(this);
+
+    iconsLayout->addWidget(new ServerIconsWidget(this));
+
+    qgbServerIcons->setLayout(iconsLayout);
 
 	refill(GroupAdd);
 	refill(GroupRemove);

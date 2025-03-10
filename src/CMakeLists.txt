@@ -7,13 +7,9 @@ set(PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/Mumble.proto")
 set(UDP_PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/MumbleUDP.proto")
 
 option(benchmarks "Build benchmarks" OFF)
-
 option(qssldiffiehellmanparameters "Build support for custom Diffie-Hellman parameters." ON)
-
 option(zeroconf "Build support for zeroconf (mDNS/DNS-SD)." ON)
-
 option(tracy "Enable the tracy profiler." OFF)
-
 option(bundled-gsl "Use the bundled GSL version instead of looking for one on the system" ON)
 option(bundled-spdlog "Use the bundled spdlog version instead of looking for one on the system" ON)
 

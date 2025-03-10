@@ -222,7 +222,7 @@ set(MUMBLE_SOURCES
 	"SearchDialog.h"
 	"SearchDialog.ui"
 	"ServerHandler.cpp"
-	"ServerHandler.h"
+        "ServerHandler.h"
 	"ServerInformation.cpp"
 	"ServerInformation.h"
 	"ServerInformation.ui"
@@ -312,10 +312,10 @@ set(MUMBLE_SOURCES
 	"widgets/SearchDialogTree.h"
 	"widgets/SemanticSlider.cpp"
 	"widgets/SemanticSlider.h"
+        "widgets/ServerIcons.cpp"
+        "widgets/ServerIcons.h"
 	"widgets/TrayIcon.cpp"
 	"widgets/TrayIcon.h"
-
-
 	"${SHARED_SOURCE_DIR}/ACL.cpp"
 	"${SHARED_SOURCE_DIR}/ACL.h"
 	"${SHARED_SOURCE_DIR}/Channel.cpp"

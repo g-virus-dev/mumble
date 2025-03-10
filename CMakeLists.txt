@@ -45,7 +45,7 @@ list(APPEND CMAKE_MODULE_PATH
 )
 
 if(NOT DEFINED CMAKE_CXX_STANDARD)
-        set(CMAKE_CXX_STANDARD 20)
+        set(CMAKE_CXX_STANDARD 23)
 endif()
 set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_OSX_DEPLOYMENT_TARGET 10.15)
@@ -69,11 +69,7 @@ find_python_interpreter(
 	REQUIRED
 )
 
-
-
 check_ipo_supported(RESULT LTO_DEFAULT)
-
-
 
 option(optimize "Build a heavily optimized version, specific to the machine it's being compiled on." OFF)
 option(static "Build static binaries." OFF)
@@ -82,6 +78,7 @@ option(warnings-as-errors "All warnings are treated as errors." ON)
 
 option(client "Build the client (Mumble)" ON)
 option(server "Build the server (Murmur)" ON)
+
 if(NOT ${CMAKE_SYSTEM_NAME} STREQUAL "OpenBSD")
 	option(overlay "Build overlay." ${client})
 endif()

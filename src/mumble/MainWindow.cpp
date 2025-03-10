@@ -1325,21 +1325,25 @@ void MainWindow::setOnTop(bool top) {
 	}
 }
 
-void MainWindow::loadState(const bool minimalView) {
-	if (minimalView) {
-		if (!Global::get().s.qbaMinimalViewGeometry.isNull()) {
-			restoreGeometry(Global::get().s.qbaMinimalViewGeometry);
-		}
-		if (!Global::get().s.qbaMinimalViewState.isNull()) {
+void MainWindow::loadState(const bool minimalView)
+{
+    if (minimalView)
+    {
+        // TODO: issue with tiling window managers (i3, Sway etc.)
+        /*if (!Global::get().s.qbaMinimalViewGeometry.isNull())
+            restoreGeometry(Global::get().s.qbaMinimalViewGeometry);*/
+
+        if (!Global::get().s.qbaMinimalViewState.isNull())
 			restoreState(Global::get().s.qbaMinimalViewState, stateVersion());
-		}
-	} else {
-		if (!Global::get().s.qbaMainWindowGeometry.isNull()) {
-			restoreGeometry(Global::get().s.qbaMainWindowGeometry);
-		}
-		if (!Global::get().s.qbaMainWindowState.isNull()) {
+    }
+    else
+    {
+        // TODO: issue with tiling window managers (i3, Sway etc.)
+        /*if (!Global::get().s.qbaMainWindowGeometry.isNull())
+            restoreGeometry(Global::get().s.qbaMainWindowGeometry);*/
+
+        if (!Global::get().s.qbaMainWindowState.isNull())
 			restoreState(Global::get().s.qbaMainWindowState, stateVersion());
-		}
 	}
 }
 
